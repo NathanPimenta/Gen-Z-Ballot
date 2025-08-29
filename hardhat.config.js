@@ -14,6 +14,11 @@ module.exports = {
       },
     },
   },
+  paths: {
+    sources: "./voting_contracts",
+    artifacts: "./artifacts",
+    cache: "./cache",
+  },
   networks: {
     hardhat: {
       chainId: 1337,

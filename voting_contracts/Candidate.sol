@@ -28,8 +28,8 @@ contract Candidate{
     mapping (address => bool) verifiedCandidates;
     mapping (address => bool) hasWon;
 
-    uint immutable regStart = block.timestamp;
-    uint immutable regEnd = regStart + 1 weeks;
+    uint public regStart;
+    uint public regEnd;
     uint public totalCandidates = 0;
     uint totalDeposits;
     uint primKey = 1;
@@ -134,7 +134,7 @@ contract Candidate{
     }
 
     // New functions to support enhanced voting system
-    function getCandidatesByConstituency(uint _constituencyId) external view returns (address[] memory) {
+    function getCandidatesByConstituency(uint _constituencyId) public view returns (address[] memory) {
         uint count = 0;
         
         // First pass: count candidates in constituency
@@ -236,7 +236,7 @@ contract Candidate{
 
     // Emergency functions for election management
     function emergencyRemoveCandidate(address _candidateAddress) external {
-        require(e.isElecCommissioner(msg.sender), "Only Election Commissioner can perform this action");
+        require(e.isElecCommissionerAddress(msg.sender), "Only Election Commissioner can perform this action");
         require(isCandidate[_candidateAddress], "Candidate not found");
         
         // Refund security deposit
@@ -246,9 +246,11 @@ contract Candidate{
         }
         
         // Remove candidate
+        uint candidateId = candidates[_candidateAddress].candidateId;
         delete candidates[_candidateAddress];
         delete isCandidate[_candidateAddress];
         delete verifiedCandidates[_candidateAddress];
+        delete candidateIds[candidateId];
         
         totalCandidates--;
         totalDeposits -= deposit;
@@ -261,15 +263,24 @@ contract Candidate{
         uint totalDepositsCollected
     ) {
         // Count unique constituencies
-        mapping(uint => bool) memory constituencyCount;
         uint uniqueConstituencies = 0;
+        uint[] memory constituencyIds = new uint[](totalCandidates);
+        uint constituencyIndex = 0;
         
         for (uint i = 1; i < primKey; i++) {
             address candidateAddr = candidateIds[i];
             if (candidateAddr != address(0)) {
                 uint constituencyId = candidates[candidateAddr].constituencyId;
-                if (!constituencyCount[constituencyId]) {
-                    constituencyCount[constituencyId] = true;
+                bool found = false;
+                for (uint j = 0; j < constituencyIndex; j++) {
+                    if (constituencyIds[j] == constituencyId) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    constituencyIds[constituencyIndex] = constituencyId;
+                    constituencyIndex++;
                     uniqueConstituencies++;
                 }
             }
@@ -290,6 +301,8 @@ contract Candidate{
     }
 
     constructor(address _electionOfficerAddr){
+        regStart = block.timestamp;
+        regEnd = regStart + 1 weeks;
         e = ElectionOfficer(_electionOfficerAddr);
     }
 }

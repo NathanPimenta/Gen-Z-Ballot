@@ -362,7 +362,10 @@ describe("Voting System", function () {
             
             await candidate.connect(owner).emergencyRemoveCandidate(candidate1.address);
             
-            expect(await candidate.isCandidateRegistered(candidate1.address)).to.be.false;
+            // Check that the candidate is no longer registered by trying to get their details
+            await expect(
+                candidate.getCandidateDetails(1)
+            ).to.be.revertedWith("Candidate not found");
         });
     });
 

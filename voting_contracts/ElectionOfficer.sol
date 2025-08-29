@@ -4,11 +4,10 @@ pragma solidity ^0.8.20;
 contract ElectionOfficer{
 
     //Timestart and Timeend for a limited registration window (Will not change even if multiple contract instances are deployed)
-    uint immutable timeStart = block.timestamp;
-    uint immutable timeEnd = timeStart + 3 days;
-
-    uint immutable electionStart = timeEnd + 1 weeks;
-    uint immutable electionEnd = electionStart + 1 days;
+    uint public timeStart;
+    uint public timeEnd;
+    uint public electionStart;
+    uint public electionEnd;
 
     struct electionOfficer{
 
@@ -87,7 +86,10 @@ contract ElectionOfficer{
     }
 
     constructor () {
-
+        timeStart = block.timestamp;
+        timeEnd = timeStart + 3 days;
+        electionStart = timeEnd + 1 weeks;
+        electionEnd = electionStart + 1 days;
         electionCommissioner = address(msg.sender);
     }
 }

@@ -53,19 +53,11 @@ async function main() {
     const commissionerAddress = await electionOfficer.getCommissionerAddress();
     console.log("Commissioner address:", commissionerAddress);
     
-    // Check Voter's ElectionOfficer connection
-    const voterElectionOfficerAddr = await voter.getElectionOfficerAddress();
-    console.log("Voter's ElectionOfficer address:", voterElectionOfficerAddr);
-    
     const voterTx = await voter.connect(deployer).setGeneralElection(await generalElections.getAddress());
     await voterTx.wait();
     console.log("✅ Voter contract linked to GeneralElections");
 
     console.log("Setting GeneralElections in Candidate contract...");
-    
-    // Check Candidate's ElectionOfficer connection
-    const candidateElectionOfficerAddr = await candidate.getElectionOfficerAddress();
-    console.log("Candidate's ElectionOfficer address:", candidateElectionOfficerAddr);
     
     const candidateTx = await candidate.connect(deployer).setGeneralElection(await generalElections.getAddress());
     await candidateTx.wait();

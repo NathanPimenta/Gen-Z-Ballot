@@ -26,11 +26,10 @@ contract GeneralElections{
     Candidate c;
     ElectionOfficer e;
 
-    uint public immutable electionStart = block.timestamp + 3 days;
-    uint public immutable electionEnd = electionStart + 1 weeks;
-
-    uint public immutable bufferStart = electionEnd + 2 days;
-    uint public immutable bufferEnd = bufferStart + 1 weeks;
+    uint public electionStart;
+    uint public electionEnd;
+    uint public bufferStart;
+    uint public bufferEnd;
 
     uint public totalVotes = 0;
     bool public isElectionPaused = false;
@@ -268,7 +267,7 @@ contract GeneralElections{
     }
 
     // Vote verification and audit functions
-    function generateVoteProof(uint _voterId, uint _candidateId) internal pure returns (bytes32) {
+    function generateVoteProof(uint _voterId, uint _candidateId) internal view returns (bytes32) {
         return keccak256(abi.encodePacked(_voterId, _candidateId, block.timestamp));
     }
 
@@ -310,6 +309,10 @@ contract GeneralElections{
     }
 
     constructor(address _candidate, address _voter, address _electionOfficer){
+        electionStart = block.timestamp + 3 days;
+        electionEnd = electionStart + 1 weeks;
+        bufferStart = electionEnd + 2 days;
+        bufferEnd = bufferStart + 1 weeks;
         c = Candidate(_candidate);
         v = Voter(_voter);
         e = ElectionOfficer(_electionOfficer);
