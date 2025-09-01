@@ -1,0 +1,157 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "D:\\Nathan\\PROJECTS\\TrueBallot\\voting_contracts\\Candidate.sol": {
+      "lastModificationDate": 1756403798693,
+      "contentHash": "be4f5a5330814fb2af2ecd2038229517",
+      "sourceName": "voting_contracts/Candidate.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ElectionOfficer.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Candidate"
+      ]
+    },
+    "D:\\Nathan\\PROJECTS\\TrueBallot\\voting_contracts\\ElectionOfficer.sol": {
+      "lastModificationDate": 1756403621828,
+      "contentHash": "03a7bec8f2ae799c579d1f137ed746ea",
+      "sourceName": "voting_contracts/ElectionOfficer.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "ElectionOfficer"
+      ]
+    },
+    "D:\\Nathan\\PROJECTS\\TrueBallot\\voting_contracts\\GeneralElections.sol": {
+      "lastModificationDate": 1756403718796,
+      "contentHash": "8c096e92f7e7d35b1019dcc19c1a252a",
+      "sourceName": "voting_contracts/GeneralElections.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Voter.sol",
+        "./Candidate.sol",
+        "./ElectionOfficer.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "GeneralElections"
+      ]
+    },
+    "D:\\Nathan\\PROJECTS\\TrueBallot\\voting_contracts\\Voter.sol": {
+      "lastModificationDate": 1756403660721,
+      "contentHash": "c5d85f25ec928af0ae7da7821435744b",
+      "sourceName": "voting_contracts/Voter.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ElectionOfficer.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "Voter"
+      ]
+    }
+  }
+}
