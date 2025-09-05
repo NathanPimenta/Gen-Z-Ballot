@@ -1,4 +1,6 @@
 const { ethers } = require("hardhat");
+const fs = require("fs");
+const path = require("path");
 
 async function main() {
     console.log("🚀 Deploying Voting System Contracts...\n");
@@ -107,6 +109,51 @@ async function main() {
     console.log("3. Verify voters and candidates using Election Officers");
     console.log("4. Start voting when election period begins");
     console.log("5. Count votes and declare results");
+
+    // Export addresses and ABIs for frontend
+    try {
+        const frontendDir = path.join(__dirname, "frontend", "src", "contracts");
+        if (!fs.existsSync(frontendDir)) {
+            fs.mkdirSync(frontendDir, { recursive: true });
+        }
+
+        const addresses = {
+            ElectionOfficer: await electionOfficer.getAddress(),
+            Voter: await voter.getAddress(),
+            Candidate: await candidate.getAddress(),
+            GeneralElections: await generalElections.getAddress(),
+        };
+
+        fs.writeFileSync(
+            path.join(frontendDir, "addresses.json"),
+            JSON.stringify(addresses, null, 2)
+        );
+
+        const artifactsDir = path.join(__dirname, "artifacts", "voting_contracts");
+        const contracts = [
+            "ElectionOfficer.sol",
+            "Voter.sol",
+            "Candidate.sol",
+            "GeneralElections.sol",
+        ];
+
+        for (const contractFolder of contracts) {
+            const name = contractFolder.replace(".sol", "");
+            const abiJsonPath = path.join(artifactsDir, contractFolder, `${name}.json`);
+            if (fs.existsSync(abiJsonPath)) {
+                const artifactJson = JSON.parse(fs.readFileSync(abiJsonPath, "utf8"));
+                const abi = artifactJson.abi;
+                fs.writeFileSync(
+                    path.join(frontendDir, `${name}.abi.json`),
+                    JSON.stringify(abi, null, 2)
+                );
+            }
+        }
+
+        console.log("\n📦 Exported contract addresses and ABIs to frontend/src/contracts");
+    } catch (err) {
+        console.warn("⚠️ Failed to export artifacts for frontend:", err);
+    }
 
     // Export addresses for testing
     return {

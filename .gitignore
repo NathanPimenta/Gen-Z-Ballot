@@ -1,1 +1,34 @@
-node_modules
+# Node
+node_modules/
+package-lock.json
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Hardhat
+artifacts/
+cache/
+coverage/
+coverage.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Frontend build
+frontend/dist/
+
+# Misc
+*.tsbuildinfo

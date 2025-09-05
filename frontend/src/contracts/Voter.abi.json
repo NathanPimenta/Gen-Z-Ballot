@@ -1,0 +1,513 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_ElectionOfficerAddr",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "_voterAddresses",
+        "type": "address[]"
+      },
+      {
+        "internalType": "bool[]",
+        "name": "_decisions",
+        "type": "bool[]"
+      }
+    ],
+    "name": "bulkVerifyVoters",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "electionCommission",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "electionEnd",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "electionStart",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_voterAddress",
+        "type": "address"
+      }
+    ],
+    "name": "emergencyRemoveVoter",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "endTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "gElect",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllVoters",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_constituencyId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getConstituencyVoterCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_voterAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getVoterByAddress",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "age",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "constituencyId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "hasVoted",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isAllowedToVote",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_voterId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getVoterConstituency",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_voterId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getVoterDetails",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "age",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "constituencyId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "hasVoted",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isAllowedToVote",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "hasRegistered",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getVoterStatistics",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalRegistered",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalVerified",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalVoted",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalConstituencies",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_constituencyId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getVoterTurnout",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalVoters",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "votedVoters",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_constituencyId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getVotersByConstituency",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_voterId",
+        "type": "uint256"
+      }
+    ],
+    "name": "hasVoterVoted",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_voterId",
+        "type": "uint256"
+      }
+    ],
+    "name": "isVoterAllowedToVote",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "primKey",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_age",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes12",
+        "name": "_aadharNumber",
+        "type": "bytes12"
+      },
+      {
+        "internalType": "string",
+        "name": "_voterIdNumber",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_ConstituencyId",
+        "type": "uint256"
+      }
+    ],
+    "name": "registerAsVoter",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_generalElection",
+        "type": "address"
+      }
+    ],
+    "name": "setGeneralElection",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "startTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_voterId",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateVoterAfterVote",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_voterAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_newConstituencyId",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateVoterConstituency",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "voterAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes12",
+        "name": "_aadharNumber",
+        "type": "bytes12"
+      },
+      {
+        "internalType": "string",
+        "name": "_voterIdNumber",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "decision",
+        "type": "bool"
+      }
+    ],
+    "name": "verifyVoters",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "voterCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
