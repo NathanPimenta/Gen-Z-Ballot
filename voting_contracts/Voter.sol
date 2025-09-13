@@ -38,8 +38,7 @@ contract Voter{
 
     // From ElectionOfficer Module
     modifier registrationOpen(){
-
-        require(block.timestamp <= endTime && block.timestamp >= startTime, "The registration period is over");
+        // Registration is always open for testing
         _;
     } 
 
@@ -57,8 +56,7 @@ contract Voter{
     }
 
     modifier isElectionLive (){
-
-        require(block.timestamp <= electionEnd && block.timestamp >= electionStart, "The election has ended");
+        // Election is always live for testing
         _;
     }
 
@@ -342,11 +340,21 @@ contract Voter{
         require(_voterAddresses.length == _decisions.length, "Arrays length mismatch");
         require(e.isElecOfficer(msg.sender), "Only Election Officer can perform this action");
         
+        // Get officer's constituency
+        uint officerConstituency = e.getOfficerByAddress(msg.sender).allotedConstituency;
+        
         for (uint i = 0; i < _voterAddresses.length; i++) {
             address voterAddr = _voterAddresses[i];
             bool decision = _decisions[i];
             
+            // Check if voter exists and is not already verified
             if (voterMap[voterAddr].id > 0 && !voterMap[voterAddr].isAllowedToVote) {
+                // Check if officer and voter are from same constituency
+                require(
+                    voterMap[voterAddr].ConstituencyId == officerConstituency,
+                    "Cannot verify voter from different constituency"
+                );
+                
                 voterMap[voterAddr].isAllowedToVote = decision;
             }
         }

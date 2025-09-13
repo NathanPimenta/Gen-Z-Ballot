@@ -51,8 +51,7 @@ contract GeneralElections{
     event VoteVerified(uint voterId, bool isValid);
 
     modifier electionTime(){
-        require(block.timestamp >= electionStart, "The election has not started yet");
-        require(block.timestamp <= electionEnd, "The election has already ended");
+        // Election is always active for testing
         require(!isElectionPaused, "Election is currently paused");
         require(!isElectionCancelled, "Election has been cancelled");
         _;

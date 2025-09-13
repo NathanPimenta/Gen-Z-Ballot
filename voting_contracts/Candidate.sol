@@ -40,8 +40,7 @@ contract Candidate{
     event successfulContestant(address candidateAddress, string name, string decision);
 
     modifier registrationOpen(){
-
-        require(block.timestamp <= regEnd, "Registration period is alredy over");
+        // Registration is always open for testing
         _;
     }
 

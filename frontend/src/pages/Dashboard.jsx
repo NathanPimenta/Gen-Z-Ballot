@@ -15,11 +15,15 @@ function Dashboard() {
 
 	useEffect(() => {
 		loadDashboardData();
+		
+		// Refresh data every 5 seconds
+		const interval = setInterval(() => loadDashboardData(false), 5000);
+		return () => clearInterval(interval);
 	}, []);
 
-	const loadDashboardData = async () => {
+	const loadDashboardData = async (showLoading = true) => {
 		try {
-			setLoading(true);
+			if (showLoading) setLoading(true);
 			
 			// Load basic stats
 			const [voterContract, candidateContract, electionContract] = await Promise.all([
@@ -55,12 +59,30 @@ function Dashboard() {
 				console.log('Total votes not available');
 			}
 
-			// Get recent candidates
+			// Get recent candidates with details
 			let candidates = [];
 			try {
 				if (candidateContract.getAllCandidates) {
-					candidates = await candidateContract.getAllCandidates();
-					candidates = candidates.slice(-5); // Get last 5
+					const candidateAddresses = await candidateContract.getAllCandidates();
+					candidates = [];
+					
+					// Get details for each candidate
+					for (const address of candidateAddresses.slice(-5)) { // Get last 5
+						try {
+							const candidateId = await candidateContract.getCandidateIdByAddress(address);
+							const details = await candidateContract.getCandidateDetails(candidateId);
+							candidates.push({
+								address: address,
+								name: details[0],
+								party: details[1],
+								constituency: details[3].toString(),
+								age: details[2].toString(),
+								isVerified: details[5]
+							});
+						} catch (e) {
+							console.log('Error loading candidate details for', address, e.message);
+						}
+					}
 				}
 			} catch (e) {
 				console.log('Candidates list not available');
@@ -134,9 +156,27 @@ function Dashboard() {
 		<div className="grid">
 			{/* Welcome Section */}
 			<div className="card">
-				<h1 style={{ margin: '0 0 16px 0', fontSize: '2rem' }}>
-					Welcome to Gen-Z Ballot
-				</h1>
+				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+					<h1 style={{ margin: '0', fontSize: '2rem' }}>
+						Welcome to Gen-Z Ballot
+					</h1>
+					<button 
+						onClick={() => loadDashboardData(true)}
+						style={{
+							background: 'var(--bg-elev)',
+							border: '1px solid var(--border)',
+							borderRadius: '8px',
+							padding: '8px 16px',
+							cursor: 'pointer',
+							fontSize: '0.9rem',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px'
+						}}
+					>
+						🔄 Refresh
+					</button>
+				</div>
 				<p style={{ 
 					color: 'var(--text-muted)', 
 					fontSize: '1.1rem',
@@ -235,14 +275,21 @@ function Dashboard() {
 							}}>
 								<div>
 									<div style={{ fontWeight: '600' }}>
-										{candidate.name || candidate[0] || 'Unknown Candidate'}
+										{candidate.name || 'Unknown Candidate'}
 									</div>
 									<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-										{candidate.party || candidate[2] || 'Independent'}
+										{candidate.party || 'Independent'}
 									</div>
 								</div>
-								<div className="badge">
-									Constituency {candidate.constituency || candidate[3] || 'N/A'}
+								<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+									<div className="badge">
+										Constituency {candidate.constituency || 'N/A'}
+									</div>
+									{candidate.isVerified && (
+										<div className="badge" style={{ background: 'var(--success)', color: 'white' }}>
+											✅ Verified
+										</div>
+									)}
 								</div>
 							</div>
 						))}
