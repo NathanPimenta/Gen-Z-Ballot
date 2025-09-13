@@ -1,0 +1,198 @@
+{
+  "demoData": {
+    "description": "Complete test data for Gen-Z Ballot demo video",
+    "voters": [
+      {
+        "name": "Alice Johnson",
+        "age": 25,
+        "aadhar": "123456789012",
+        "aadharHex": "0x313233343536373839303132",
+        "voterId": "VOTER001",
+        "constituency": 1,
+        "address": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65"
+      },
+      {
+        "name": "Bob Smith",
+        "age": 30,
+        "aadhar": "987654321098",
+        "aadharHex": "0x393837363534333231303938",
+        "voterId": "VOTER002",
+        "constituency": 2,
+        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+      },
+      {
+        "name": "Carol Davis",
+        "age": 22,
+        "aadhar": "555555555555",
+        "aadharHex": "0x353535353535353535353535",
+        "voterId": "VOTER003",
+        "constituency": 1,
+        "address": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+      }
+    ],
+    "candidates": [
+      {
+        "name": "John Progressive",
+        "party": "Progressive Party",
+        "age": 30,
+        "constituency": 1,
+        "deposit": "1.0",
+        "address": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc"
+      },
+      {
+        "name": "Sarah Conservative",
+        "party": "Conservative Alliance",
+        "age": 35,
+        "constituency": 2,
+        "deposit": "2.5",
+        "address": "0x976EA74026E726554dB657fA54763abd0C3a0aa9"
+      },
+      {
+        "name": "Mike Independent",
+        "party": "Independent",
+        "age": 28,
+        "constituency": 1,
+        "deposit": "0.5",
+        "address": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955"
+      }
+    ],
+    "officers": [
+      {
+        "name": "Election Officer 1",
+        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+      }
+    ]
+  },
+  "edgeCases": {
+    "invalidVoters": [
+      {
+        "name": "Young Voter",
+        "age": 17,
+        "aadhar": "123456789012",
+        "voterId": "VOTER006",
+        "constituency": 1,
+        "expectedError": "Age under 18"
+      },
+      {
+        "name": "",
+        "age": 25,
+        "aadhar": "123456789012",
+        "voterId": "VOTER007",
+        "constituency": 1,
+        "expectedError": "Empty name"
+      },
+      {
+        "name": "No Aadhar",
+        "age": 25,
+        "aadhar": "",
+        "voterId": "VOTER008",
+        "constituency": 1,
+        "expectedError": "Empty Aadhar"
+      }
+    ],
+    "invalidCandidates": [
+      {
+        "name": "Young Candidate",
+        "party": "Youth Party",
+        "age": 24,
+        "constituency": 1,
+        "deposit": "1.0",
+        "expectedError": "Age under 25"
+      },
+      {
+        "name": "",
+        "party": "Empty Party",
+        "age": 30,
+        "constituency": 1,
+        "deposit": "1.0",
+        "expectedError": "Empty name"
+      },
+      {
+        "name": "Low Deposit",
+        "party": "Cheap Party",
+        "age": 30,
+        "constituency": 1,
+        "deposit": "0.05",
+        "expectedError": "Deposit too low"
+      }
+    ]
+  },
+  "testScenarios": {
+    "scenario1": {
+      "name": "Basic Election Flow",
+      "description": "Register voters, candidates, verify, vote, and check results",
+      "steps": [
+        "Register 3 voters",
+        "Register 3 candidates", 
+        "Verify all registrations",
+        "Cast votes",
+        "Check results"
+      ],
+      "expectedResults": {
+        "totalVoters": 3,
+        "totalCandidates": 3,
+        "totalVotes": 3
+      }
+    },
+    "scenario2": {
+      "name": "Edge Case Testing",
+      "description": "Test invalid inputs and error handling",
+      "steps": [
+        "Try to register underage voter",
+        "Try to register candidate with low deposit",
+        "Try to vote without verification",
+        "Test form validation"
+      ]
+    },
+    "scenario3": {
+      "name": "UI/UX Testing",
+      "description": "Test responsive design and user experience",
+      "steps": [
+        "Test on mobile device",
+        "Test form validation messages",
+        "Test loading states",
+        "Test error handling"
+      ]
+    }
+  },
+  "formTestData": {
+    "validInputs": {
+      "names": ["Alice Johnson", "Bob Smith", "Carol Davis", "David Wilson", "Eva Brown"],
+      "ages": [18, 25, 30, 35, 40, 45, 50, 65],
+      "aadhars": ["123456789012", "987654321098", "555555555555", "111111111111", "999999999999"],
+      "voterIds": ["VOTER001", "VOTER002", "VOTER003", "VOTER004", "VOTER005"],
+      "constituencies": [1, 2, 3, 4, 5],
+      "parties": ["Progressive Party", "Conservative Alliance", "Liberal Democrats", "Green Party", "Independent"],
+      "deposits": ["0.5", "1.0", "1.5", "2.0", "2.5", "3.0"]
+    },
+    "invalidInputs": {
+      "names": ["", "   ", "A", "123456789012345678901234567890123456789012345678901234567890"],
+      "ages": [17, 0, -5, "abc", ""],
+      "aadhars": ["", "12345678901", "1234567890123", "abc", "12345678901234567890"],
+      "voterIds": ["", "   ", "VOTER", "VOTER12345678901234567890"],
+      "constituencies": [0, -1, "abc", ""],
+      "parties": ["", "   "],
+      "deposits": ["0.05", "0", "-1", "abc", ""]
+    }
+  },
+  "mobileTestData": {
+    "screenSizes": [
+      { "name": "iPhone SE", "width": 375, "height": 667 },
+      { "name": "iPhone 12", "width": 390, "height": 844 },
+      { "name": "iPad", "width": 768, "height": 1024 },
+      { "name": "Desktop", "width": 1920, "height": 1080 }
+    ]
+  },
+  "contractAddresses": {
+    "ElectionOfficer": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "Voter": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "Candidate": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    "GeneralElections": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+  },
+  "networkConfig": {
+    "name": "Hardhat Local",
+    "rpcUrl": "http://localhost:8545",
+    "chainId": 1337,
+    "currency": "ETH"
+  }
+}

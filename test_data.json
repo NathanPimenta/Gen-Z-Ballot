@@ -1,0 +1,111 @@
+{
+  "voters": [
+    {
+      "name": "Alice Johnson",
+      "age": 22,
+      "aadhar": "572557406231",
+      "voterId": "VOTER001",
+      "constituency": 3
+    },
+    {
+      "name": "Bob Smith",
+      "age": 41,
+      "aadhar": "292103825324",
+      "voterId": "VOTER002",
+      "constituency": 5
+    },
+    {
+      "name": "Carol Davis",
+      "age": 45,
+      "aadhar": "311981418896",
+      "voterId": "VOTER003",
+      "constituency": 5
+    },
+    {
+      "name": "David Wilson",
+      "age": 45,
+      "aadhar": "451755235516",
+      "voterId": "VOTER004",
+      "constituency": 3
+    },
+    {
+      "name": "Eva Brown",
+      "age": 22,
+      "aadhar": "201542242113",
+      "voterId": "VOTER005",
+      "constituency": 2
+    },
+    {
+      "name": "Frank Miller",
+      "age": 24,
+      "aadhar": "426324758787",
+      "voterId": "VOTER006",
+      "constituency": 1
+    },
+    {
+      "name": "Grace Lee",
+      "age": 33,
+      "aadhar": "890211208655",
+      "voterId": "VOTER007",
+      "constituency": 4
+    },
+    {
+      "name": "Henry Taylor",
+      "age": 29,
+      "aadhar": "882286218345",
+      "voterId": "VOTER008",
+      "constituency": 3
+    },
+    {
+      "name": "Ivy Chen",
+      "age": 32,
+      "aadhar": "125273485221",
+      "voterId": "VOTER009",
+      "constituency": 2
+    },
+    {
+      "name": "Jack Anderson",
+      "age": 35,
+      "aadhar": "712738353641",
+      "voterId": "VOTER010",
+      "constituency": 1
+    }
+  ],
+  "candidates": [
+    {
+      "name": "Kate Martinez",
+      "party": "Progressive Party",
+      "age": 44,
+      "constituency": 2,
+      "deposit": "0.7"
+    },
+    {
+      "name": "Leo Rodriguez",
+      "party": "Conservative Alliance",
+      "age": 25,
+      "constituency": 3,
+      "deposit": "0.9"
+    },
+    {
+      "name": "Maya Patel",
+      "party": "Liberal Democrats",
+      "age": 37,
+      "constituency": 5,
+      "deposit": "1.7"
+    },
+    {
+      "name": "Noah Kim",
+      "party": "Green Party",
+      "age": 41,
+      "constituency": 4,
+      "deposit": "0.7"
+    },
+    {
+      "name": "Olivia White",
+      "party": "Independent",
+      "age": 30,
+      "constituency": 2,
+      "deposit": "1.2"
+    }
+  ]
+}
