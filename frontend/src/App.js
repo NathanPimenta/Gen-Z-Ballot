@@ -418,7 +418,9 @@ function App() {
 
         {/* Error/Success Messages */}
         {error && <div className="error">{error}</div>}
+        }
         {success && <div className="success">{success}</div>}
+        }
 
         {/* Main Tabs */}
         <div className="card">
