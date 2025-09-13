@@ -36,6 +36,10 @@ contract Voter{
     uint public voterCount = 0;
     uint public primKey=1;
 
+    // Events
+    event VoterRegistered(address indexed voterAddress, string name, uint constituencyId);
+    event VoterVerified(address indexed voterAddress, bool isVerified);
+
     // From ElectionOfficer Module
     modifier registrationOpen(){
 
@@ -95,6 +99,8 @@ contract Voter{
 
             ++primKey;
             ++voterCount;
+            
+            emit VoterRegistered(address(msg.sender), _name, _ConstituencyId);
 
             return "The voter is registered successfully. Now he awaits for approval";
     }
@@ -114,6 +120,8 @@ contract Voter{
             if(decision){
                 v.isAllowedToVote = decision;
             }
+            
+            emit VoterVerified(voterAddress, decision);
         
             return decision? "Voter Successfully verified and can vote": "Voter not registered as not following the specified rules";
     }

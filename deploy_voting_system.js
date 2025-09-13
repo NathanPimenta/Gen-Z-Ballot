@@ -1,4 +1,6 @@
 const { ethers } = require("hardhat");
+const fs = require("fs");
+const path = require("path");
 
 async function main() {
     console.log("🚀 Deploying Voting System Contracts...\n");
@@ -109,12 +111,57 @@ async function main() {
     console.log("5. Count votes and declare results");
 
     // Export addresses for testing
+    await exportContractsToFrontend({
+        electionOfficer: await electionOfficer.getAddress(),
+        voter: await voter.getAddress(),
+        candidate: await candidate.getAddress(),
+        generalElections: await generalElections.getAddress()
+    });
+
     return {
         electionOfficer: await electionOfficer.getAddress(),
         voter: await voter.getAddress(),
         candidate: await candidate.getAddress(),
         generalElections: await generalElections.getAddress()
     };
+}
+
+async function exportContractsToFrontend(addresses) {
+    console.log("\n📁 Exporting contracts to frontend...");
+    
+    const frontendDir = path.join(__dirname, "frontend", "src", "contracts");
+    
+    // Create frontend contracts directory if it doesn't exist
+    if (!fs.existsSync(frontendDir)) {
+        fs.mkdirSync(frontendDir, { recursive: true });
+    }
+    
+    // Export addresses
+    const addressesContent = `export const CONTRACT_ADDRESSES = ${JSON.stringify(addresses, null, 2)};`;
+    fs.writeFileSync(path.join(frontendDir, "addresses.js"), addressesContent);
+    
+    // Export ABIs
+    const contracts = ["ElectionOfficer", "Voter", "Candidate", "GeneralElections"];
+    
+    for (const contractName of contracts) {
+        const artifactPath = path.join(__dirname, "artifacts", "voting_contracts", `${contractName}.sol`, `${contractName}.json`);
+        if (fs.existsSync(artifactPath)) {
+            const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
+            const abiContent = `export const ${contractName.toUpperCase()}_ABI = ${JSON.stringify(artifact.abi, null, 2)};`;
+            fs.writeFileSync(path.join(frontendDir, `${contractName}ABI.js`), abiContent);
+        }
+    }
+    
+    // Create index file for easy imports
+    const indexContent = `export { CONTRACT_ADDRESSES } from './addresses.js';
+export { ELECTIONOFFICER_ABI } from './ElectionOfficerABI.js';
+export { VOTER_ABI } from './VoterABI.js';
+export { CANDIDATE_ABI } from './CandidateABI.js';
+export { GENERALELECTIONS_ABI } from './GeneralElectionsABI.js';`;
+    
+    fs.writeFileSync(path.join(frontendDir, "index.js"), indexContent);
+    
+    console.log("✅ Contracts exported to frontend/src/contracts/");
 }
 
 // Execute deployment

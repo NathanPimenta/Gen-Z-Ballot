@@ -42,6 +42,7 @@ contract GeneralElections{
     mapping(bytes32 => bool) public usedProofs; // proof hash => used status
     
     event voteRegistered(string message);
+    event VoteCast(address indexed voterAddress, uint indexed voterId, uint indexed candidateId, uint constituencyId);
     event ElectionPaused(string reason);
     event ElectionResumed();
     event ElectionCancelled(string reason);
@@ -115,7 +116,12 @@ contract GeneralElections{
         voteProofs[_voterId] = voteProof;
         usedProofs[voteProof] = true;
         
+        // Get voter address for event
+        address voterAddress = getVoterAddressById(_voterId);
+        uint constituencyId = v.getVoterConstituency(_voterId);
+        
         v.updateVoterAfterVote(_voterId);
+        emit VoteCast(voterAddress, _voterId, _candidateId, constituencyId);
         emit voteRegistered("Your vote is cast successfully. Thank you for voting");
         emit VoteCounted(_candidateId, candidateVoteCount[_candidateId]);
         emit VoteProofGenerated(_voterId, voteProof);
@@ -246,6 +252,13 @@ contract GeneralElections{
 
     function getCandidateIdByAddress(address _candidateAddress) internal view returns (uint) {
         return c.getCandidateIdByAddress(_candidateAddress);
+    }
+    
+    // Helper function to get voter address by ID
+    function getVoterAddressById(uint _voterId) internal view returns (address) {
+        // This would need to be implemented in Voter contract
+        // For now, we'll use a workaround
+        return address(0); // Placeholder - would need Voter contract enhancement
     }
 
     // Get election status

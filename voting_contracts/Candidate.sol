@@ -36,6 +36,11 @@ contract Candidate{
 
     address public gElect;
     address public electionCommission;
+    
+    // Events
+    event CandidateRegistered(address indexed candidateAddress, string name, uint constituencyId);
+    event CandidateVerified(address indexed candidateAddress, bool isVerified);
+    
     event successfulRegistration(address candidateAddr, string candidateName);
     event successfulContestant(address candidateAddress, string name, string decision);
 
@@ -86,6 +91,8 @@ contract Candidate{
         ++primKey;
         ++totalCandidates;
         totalDeposits += msg.value;
+        
+        emit CandidateRegistered(candidateAddress, name, constituencyId);
         emit successfulRegistration(candidateAddress, name);
 
 
@@ -99,11 +106,14 @@ contract Candidate{
             
             c.canContest = decision;
             verifiedCandidates[_candidateAddress] = true;
+            emit CandidateVerified(_candidateAddress, true);
             emit successfulContestant(_candidateAddress, candidates[_candidateAddress].name, "This candidate can successfully contest");
         }
 
-        else 
+        else {
+        emit CandidateVerified(_candidateAddress, false);
         emit successfulContestant(_candidateAddress, candidates[_candidateAddress].name, "This candidate cannot contest");
+        }
         
     }
 
