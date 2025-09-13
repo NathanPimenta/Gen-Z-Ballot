@@ -14,9 +14,9 @@
     "deploy:mainnet": "npx hardhat run deploy_voting_system.js --network mainnet",
     "node": "npx hardhat node",
     "clean": "npx hardhat clean",
-    "dev": "npx hardhat node & sleep 5 && npm run deploy && npm run frontend:start",
     "coverage": "npx hardhat coverage",
-    "verify": "npx hardhat verify"
+    "verify": "npx hardhat verify",
+    "dev": "npx hardhat node & sleep 5 && npm run deploy && npm run frontend:start"
   },
   "repository": {
     "type": "git",
