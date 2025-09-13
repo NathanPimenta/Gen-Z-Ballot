@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useContracts } from '../web3/useContracts';
+import { ethers } from 'ethers';
 
 function CastVote() {
-	const { Candidate, GeneralElections } = useContracts();
+	const { Voter, Candidate, GeneralElections } = useContracts();
 	const [candidates, setCandidates] = useState([]);
 	const [selected, setSelected] = useState('');
 	const [status, setStatus] = useState({ type: '', message: '' });
@@ -16,10 +17,58 @@ function CastVote() {
 	const loadCandidates = async () => {
 		try {
 			setLoadingCandidates(true);
-			const candidate = await Candidate();
-			if (candidate.getAllCandidates) {
-				const list = await candidate.getAllCandidates();
-				setCandidates(list);
+			const candidateContract = await Candidate();
+			const voterContract = await Voter();
+			
+			// Get current user's address
+			const provider = window.ethereum ? new ethers.BrowserProvider(window.ethereum) : null;
+			if (!provider) {
+				throw new Error('No provider found');
+			}
+			const signer = await provider.getSigner();
+			const voterAddress = await signer.getAddress();
+			
+			// Get voter details to find constituency
+			let voterConstituency = null;
+			try {
+				const voterDetails = await voterContract.getVoterByAddress(voterAddress);
+				voterConstituency = voterDetails.constituencyId.toString();
+			} catch (e) {
+				console.log('Voter not found or not registered');
+				setStatus({ type: 'error', message: 'You must be registered as a voter to cast a vote' });
+				return;
+			}
+			
+			// Get all candidates
+			const candidateAddresses = await candidateContract.getAllCandidates();
+			const candidateDetails = [];
+			
+			for (const address of candidateAddresses) {
+				try {
+					const candidateId = await candidateContract.getCandidateIdByAddress(address);
+					const details = await candidateContract.getCandidateDetails(candidateId);
+					
+					// Only show candidates from the voter's constituency
+					if (details[3].toString() === voterConstituency) {
+						candidateDetails.push({
+							address: address,
+							name: details[0],
+							party: details[1],
+							constituency: details[3].toString(),
+							age: details[2].toString(),
+							isVerified: details[5]
+						});
+					}
+				} catch (e) {
+					console.log('Error loading candidate details for', address, e.message);
+					continue;
+				}
+			}
+			
+			setCandidates(candidateDetails);
+			
+			if (candidateDetails.length === 0) {
+				setStatus({ type: 'info', message: 'No candidates available in your constituency' });
 			}
 		} catch (e) {
 			console.error('Error loading candidates:', e);
@@ -40,13 +89,42 @@ function CastVote() {
 			setStatus({ type: 'loading', message: 'Submitting your vote...' });
 			
 			const ge = await GeneralElections();
-			const tx = await ge.castVote(selected);
+			const candidate = await Candidate();
+			
+			// Get voter ID from the connected account
+			const provider = window.ethereum ? new ethers.BrowserProvider(window.ethereum) : null;
+			if (!provider) {
+				throw new Error('No provider found');
+			}
+			const signer = await provider.getSigner();
+			const voterAddress = await signer.getAddress();
+			
+			// Get voter details to find voter ID
+			const voterContract = await Voter();
+			
+			// Get voter details
+			const voterDetails = await voterContract.getVoterByAddress(voterAddress);
+			const voterId = voterDetails.id;
+			
+			// Check if voter is verified
+			if (!voterDetails.isAllowedToVote) {
+				throw new Error('You must be verified by an election officer before you can vote');
+			}
+			
+			// Get candidate ID from address
+			const candidateId = await candidate.getCandidateIdByAddress(selected);
+			
+			// Call registerVote with voter ID and candidate ID
+			const tx = await ge.registerVote(voterId, candidateId);
 			
 			setStatus({ type: 'loading', message: 'Waiting for confirmation...' });
 			await tx.wait();
 			
 			setStatus({ type: 'success', message: 'Vote cast successfully! Thank you for participating in the election.' });
 			setSelected('');
+			
+			// Refresh candidates list to show updated vote counts
+			loadCandidates();
 		} catch (e) {
 			console.error('Voting error:', e);
 			setStatus({ 
@@ -59,10 +137,10 @@ function CastVote() {
 	};
 
 	const CandidateCard = ({ candidate, isSelected, onSelect }) => {
-		const name = candidate.name || candidate[0] || 'Unknown Candidate';
-		const party = candidate.party || candidate[2] || 'Independent';
-		const constituency = candidate.constituency || candidate[3] || 'N/A';
-		const address = candidate.candidateAddress || candidate.addr || candidate;
+		const name = candidate.name || 'Unknown Candidate';
+		const party = candidate.party || 'Independent';
+		const constituency = candidate.constituency || 'N/A';
+		const address = candidate.address;
 
 		return (
 			<div 
@@ -81,6 +159,16 @@ function CastVote() {
 						<h3 style={{ margin: '0 0 8px 0', fontSize: '1.2rem' }}>{name}</h3>
 						<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
 							{party}
+						</div>
+						<div style={{ marginTop: '4px' }}>
+							<span className="badge" style={{ marginRight: '8px' }}>
+								Constituency {constituency}
+							</span>
+							{candidate.isVerified && (
+								<span className="badge" style={{ background: 'var(--success)', color: 'white' }}>
+									✅ Verified
+								</span>
+							)}
 						</div>
 					</div>
 					{isSelected && (
@@ -209,9 +297,7 @@ function CastVote() {
 							
 							{selected && !loading && (
 								<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-									Selected: {candidates.find(c => 
-										(c.candidateAddress || c.addr || c) === selected
-									)?.name || 'Unknown'}
+								Selected: {candidates.find(c => c.address === selected)?.name || 'Unknown'}
 								</div>
 							)}
 						</div>

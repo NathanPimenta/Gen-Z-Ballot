@@ -1,35 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import { useContracts } from '../web3/useContracts';
 
 const OfficerPanel = () => {
   const [account, setAccount] = useState(null);
-  const [contracts, setContracts] = useState({});
   const [voters, setVoters] = useState([]);
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [officerInfo, setOfficerInfo] = useState(null);
 
-  // Contract addresses (from deployed contracts)
-  const VOTER_CONTRACT = "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318";
-  const CANDIDATE_CONTRACT = "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
-  const GENERAL_ELECTIONS_CONTRACT = "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
-
-  // ABI for contracts (simplified)
-  const VOTER_ABI = [
-    "function verifyVoters(address voter, bytes32 aadhar, string memory voterId, bool status) external",
-    "function getVoterDetails(address voter) external view returns (string memory, uint256, string memory, bool, bool)",
-    "function getAllVoters() external view returns (address[] memory)"
-  ];
-
-  const CANDIDATE_ABI = [
-    "function candidateVerification(address candidate, bool status) external",
-    "function getCandidateDetails(address candidate) external view returns (string memory, string memory, string memory, uint256, bool, bool)",
-    "function getAllCandidates() external view returns (address[] memory)"
-  ];
-
-  const GENERAL_ELECTIONS_ABI = [
-    "function getElectionResults(uint256 constituencyId) external view returns (address[] memory, uint256[] memory, address[] memory, bool)"
-  ];
+  // Use the contracts from the hook
+  const { Voter, Candidate, GeneralElections, ElectionOfficer } = useContracts();
 
   useEffect(() => {
     connectWallet();
@@ -40,16 +22,6 @@ const OfficerPanel = () => {
       if (window.ethereum) {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         setAccount(accounts[0]);
-        
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        
-        setContracts({
-          voter: new ethers.Contract(VOTER_CONTRACT, VOTER_ABI, signer),
-          candidate: new ethers.Contract(CANDIDATE_CONTRACT, CANDIDATE_ABI, signer),
-          generalElections: new ethers.Contract(GENERAL_ELECTIONS_CONTRACT, GENERAL_ELECTIONS_ABI, signer)
-        });
-        
         loadData();
       } else {
         setMessage('Please install MetaMask to use this feature');
@@ -60,62 +32,159 @@ const OfficerPanel = () => {
   };
 
   const loadData = async () => {
-    if (!contracts.voter || !contracts.candidate) return;
+    if (!Voter || !Candidate || !ElectionOfficer) return;
     
     try {
       setLoading(true);
+      setMessage('Loading data...');
       
-      // Load voters
-      const voterAddresses = await contracts.voter.getAllVoters();
-      const voterDetails = await Promise.all(
-        voterAddresses.map(async (address) => {
-          const details = await contracts.voter.getVoterDetails(address);
-          return {
-            address,
-            name: details[0],
-            age: details[1].toString(),
-            aadhar: details[2],
-            isRegistered: details[3],
-            isVerified: details[4]
+      // Get contract instances
+      const voterContract = await Voter();
+      const candidateContract = await Candidate();
+      const electionOfficerContract = await ElectionOfficer();
+      
+      // Load officer information
+      try {
+        const isOfficer = await electionOfficerContract.isElecOfficer(account);
+        if (isOfficer) {
+          const officerDetails = await electionOfficerContract.getOfficerByAddress(account);
+          setOfficerInfo({
+            name: officerDetails.name,
+            constituency: officerDetails.allotedConstituency.toString(),
+            id: officerDetails.id.toString()
+          });
+        } else {
+          setOfficerInfo(null);
+        }
+      } catch (e) {
+        console.log('Error loading officer info:', e.message);
+        setOfficerInfo(null);
+      }
+      
+      // Load voters using getAllVoters function
+      const voterAddresses = await voterContract.getAllVoters();
+      const voterDetails = [];
+      
+      for (const address of voterAddresses) {
+        try {
+          const details = await voterContract.getVoterByAddress(address);
+          const voterData = {
+            address: address,
+            name: details[1], // name
+            age: details[2].toString(), // age
+            constituency: details[3].toString(), // constituencyId
+            hasVoted: details[4], // hasVoted
+            isVerified: details[5] // isAllowedToVote
           };
-        })
-      );
+          
+          // Only show voters from the officer's constituency (if officer is logged in)
+          if (!officerInfo || voterData.constituency === officerInfo.constituency) {
+            voterDetails.push(voterData);
+          }
+        } catch (e) {
+          console.log('Error loading voter details for', address, e.message);
+          continue;
+        }
+      }
       setVoters(voterDetails);
       
-      // Load candidates
-      const candidateAddresses = await contracts.candidate.getAllCandidates();
-      const candidateDetails = await Promise.all(
-        candidateAddresses.map(async (address) => {
-          const details = await contracts.candidate.getCandidateDetails(address);
-          return {
-            address,
-            name: details[0],
-            party: details[1],
-            constituency: details[2],
-            age: details[3].toString(),
-            isRegistered: details[4],
-            isVerified: details[5]
+      // Load candidates using getAllCandidates function
+      const candidateAddresses = await candidateContract.getAllCandidates();
+      const candidateDetails = [];
+      
+      for (const address of candidateAddresses) {
+        try {
+          const candidateId = await candidateContract.getCandidateIdByAddress(address);
+          const details = await candidateContract.getCandidateDetails(candidateId);
+          const candidateData = {
+            address: address,
+            name: details[0], // name
+            party: details[1], // politicalParty
+            constituency: details[3].toString(), // constituencyId
+            age: details[2].toString(), // age
+            isVerified: details[5] // isVerified (canContest is details[4])
           };
-        })
-      );
+          
+          // Only show candidates from the officer's constituency (if officer is logged in)
+          if (!officerInfo || candidateData.constituency === officerInfo.constituency) {
+            candidateDetails.push(candidateData);
+          }
+        } catch (e) {
+          console.log('Error loading candidate details for', address, e.message);
+          continue;
+        }
+      }
       setCandidates(candidateDetails);
       
+      setMessage(`Loaded ${voterDetails.length} voters and ${candidateDetails.length} candidates`);
+      
     } catch (error) {
+      console.error('Error loading data:', error);
       setMessage(`Error loading data: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const verifyVoter = async (voterAddress, aadhar, voterId) => {
+  const verifyVoter = async (voterAddress) => {
     try {
       setLoading(true);
-      const tx = await contracts.voter.verifyVoters(voterAddress, aadhar, voterId, true);
+      setMessage('Verifying voter...');
+      
+      // Get contract instances
+      const voterContract = await Voter();
+      const electionOfficerContract = await ElectionOfficer();
+      
+      // Check if current account is an election officer
+      const isOfficer = await electionOfficerContract.isElecOfficer(account);
+      if (!isOfficer) {
+        setMessage('Error: You are not authorized as an election officer');
+        return;
+      }
+      
+      // Get officer details to check constituency
+      const officerDetails = await electionOfficerContract.getOfficerByAddress(account);
+      const officerConstituency = officerDetails.allotedConstituency;
+      
+      // Get voter details to check constituency
+      const voterDetails = await voterContract.getVoterByAddress(voterAddress);
+      const voterConstituency = voterDetails.constituencyId;
+      
+      // Check if officer and voter are from same constituency
+      if (officerConstituency.toString() !== voterConstituency.toString()) {
+        setMessage(`Error: You can only verify voters from your assigned constituency (${officerConstituency}). This voter is from constituency ${voterConstituency}`);
+        return;
+      }
+      
+      // Check if voter is already verified
+      if (voterDetails.isAllowedToVote) {
+        setMessage('Error: This voter is already verified');
+        return;
+      }
+      
+      // For demo purposes, we'll use a simplified verification approach
+      // In a real system, the officer would input the actual Aadhar and Voter ID
+      // For now, we'll use the bulk verification function which doesn't require Aadhar/Voter ID matching
+      const tx = await voterContract.bulkVerifyVoters([voterAddress], [true]);
       await tx.wait();
+      
       setMessage('Voter verified successfully!');
       loadData(); // Refresh data
     } catch (error) {
-      setMessage(`Verification failed: ${error.message}`);
+      console.error('Verification error:', error);
+      
+      // Provide more specific error messages
+      if (error.message.includes('Cannot verify the voter as both are from different constituencies')) {
+        setMessage('Error: You can only verify voters from your assigned constituency');
+      } else if (error.message.includes('Voter is already verified')) {
+        setMessage('Error: This voter is already verified');
+      } else if (error.message.includes('Voter not found')) {
+        setMessage('Error: Voter not found in the system');
+      } else if (error.message.includes('Only Election Officer can perform this action')) {
+        setMessage('Error: You are not authorized as an election officer');
+      } else {
+        setMessage(`Verification failed: ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -124,12 +193,59 @@ const OfficerPanel = () => {
   const verifyCandidate = async (candidateAddress) => {
     try {
       setLoading(true);
-      const tx = await contracts.candidate.candidateVerification(candidateAddress, true);
+      setMessage('Verifying candidate...');
+      
+      // Get contract instances
+      const candidateContract = await Candidate();
+      const electionOfficerContract = await ElectionOfficer();
+      
+      // Check if current account is an election officer
+      const isOfficer = await electionOfficerContract.isElecOfficer(account);
+      if (!isOfficer) {
+        setMessage('Error: You are not authorized as an election officer');
+        return;
+      }
+      
+      // Get officer details to check constituency
+      const officerDetails = await electionOfficerContract.getOfficerByAddress(account);
+      const officerConstituency = officerDetails.allotedConstituency;
+      
+      // Get candidate details to check constituency
+      const candidateId = await candidateContract.getCandidateIdByAddress(candidateAddress);
+      const candidateDetails = await candidateContract.getCandidateDetails(candidateId);
+      const candidateConstituency = candidateDetails.constituencyId;
+      
+      // Check if officer and candidate are from same constituency
+      if (officerConstituency.toString() !== candidateConstituency.toString()) {
+        setMessage(`Error: You can only verify candidates from your assigned constituency (${officerConstituency}). This candidate is from constituency ${candidateConstituency}`);
+        return;
+      }
+      
+      // Check if candidate is already verified
+      if (candidateDetails.isVerified) {
+        setMessage('Error: This candidate is already verified');
+        return;
+      }
+      
+      const tx = await candidateContract.candidateVerification(candidateAddress, true);
       await tx.wait();
       setMessage('Candidate verified successfully!');
       loadData(); // Refresh data
     } catch (error) {
-      setMessage(`Verification failed: ${error.message}`);
+      console.error('Candidate verification error:', error);
+      
+      // Provide more specific error messages
+      if (error.message.includes('Cannot verify the candidate as both are from different constituencies')) {
+        setMessage('Error: You can only verify candidates from your assigned constituency');
+      } else if (error.message.includes('already verified')) {
+        setMessage('Error: This candidate is already verified');
+      } else if (error.message.includes('not found')) {
+        setMessage('Error: Candidate not found in the system');
+      } else if (error.message.includes('Only Election Officer can perform this action')) {
+        setMessage('Error: You are not authorized as an election officer');
+      } else {
+        setMessage(`Verification failed: ${error.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -154,6 +270,33 @@ const OfficerPanel = () => {
       <div className="header">
         <h1>🏛️ Election Officer Panel</h1>
         <p>Manage voter and candidate verification</p>
+        {officerInfo && (
+          <div className="officer-info" style={{ 
+            background: '#f0f8ff', 
+            padding: '1rem', 
+            borderRadius: '8px', 
+            margin: '1rem 0',
+            border: '1px solid #007bff'
+          }}>
+            <h4>👮‍♂️ Officer Information</h4>
+            <p><strong>Name:</strong> {officerInfo.name}</p>
+            <p><strong>Constituency:</strong> {officerInfo.constituency}</p>
+            <p><strong>Officer ID:</strong> {officerInfo.id}</p>
+            <p><em>You can only verify voters and candidates from your assigned constituency.</em></p>
+          </div>
+        )}
+        {!officerInfo && account && (
+          <div className="officer-warning" style={{ 
+            background: '#fff3cd', 
+            padding: '1rem', 
+            borderRadius: '8px', 
+            margin: '1rem 0',
+            border: '1px solid #ffc107'
+          }}>
+            <h4>⚠️ Authorization Required</h4>
+            <p>Your account is not registered as an election officer. Please contact the election commissioner to be assigned as an officer.</p>
+          </div>
+        )}
       </div>
 
       {message && (
@@ -178,12 +321,13 @@ const OfficerPanel = () => {
                     <div className="voter-info">
                       <strong>{voter.name}</strong>
                       <p>Age: {voter.age}</p>
-                      <p>Aadhar: {voter.aadhar}</p>
+                      <p>Constituency: {voter.constituency}</p>
+                      <p>Has Voted: {voter.hasVoted ? '✅ Yes' : '❌ No'}</p>
                       <p>Status: {voter.isVerified ? '✅ Verified' : '❌ Pending'}</p>
                     </div>
                     {!voter.isVerified && (
                       <button
-                        onClick={() => verifyVoter(voter.address, voter.aadhar, `VOTER${index + 1}`)}
+                        onClick={() => verifyVoter(voter.address)}
                         className="btn success"
                         disabled={loading}
                       >

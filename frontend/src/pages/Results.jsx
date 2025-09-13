@@ -11,6 +11,13 @@ function Results() {
 
 	useEffect(() => {
 		loadResults();
+		
+		// Auto-refresh every 10 seconds
+		const interval = setInterval(() => {
+			loadResults();
+		}, 10000);
+		
+		return () => clearInterval(interval);
 	}, []);
 
 	const loadResults = async () => {
@@ -25,50 +32,62 @@ function Results() {
 			let candidatesData = [];
 			let total = 0;
 
-			// Try to get election results
-			try {
-				if (ge.getElectionResults) {
-					resultsData = await ge.getElectionResults();
-				}
-			} catch (e) {
-				console.log('Election results not available');
-			}
-
-			// Try to get candidates list
+			// Get all candidates first
 			try {
 				if (candidate.getAllCandidates) {
-					candidatesData = await candidate.getAllCandidates();
+					const candidateAddresses = await candidate.getAllCandidates();
+					
+					// Get detailed candidate information
+					for (const address of candidateAddresses) {
+						try {
+							const candidateId = await candidate.getCandidateIdByAddress(address);
+							const details = await candidate.getCandidateDetails(candidateId);
+							
+							candidatesData.push({
+								address: address,
+								candidateId: candidateId,
+								name: details[0],
+								party: details[1],
+								age: details[2].toString(),
+								constituency: details[3].toString(),
+								isVerified: details[5]
+							});
+						} catch (e) {
+							console.log('Error loading candidate details for', address, e.message);
+							continue;
+						}
+					}
 				}
 			} catch (e) {
 				console.log('Candidates list not available');
 			}
 
-			// Calculate total votes
-			resultsData.forEach(result => {
-				const votes = Number(result.voteCount || result[1] || 0);
-				total += votes;
-			});
-
-			// Merge results with candidate data
-			const mergedResults = resultsData.map(result => {
-				const candidateAddress = result.candidateAddress || result[0];
-				const candidateInfo = candidatesData.find(c => 
-					(c.candidateAddress || c.addr || c) === candidateAddress
-				);
-				
-				return {
-					...result,
-					name: candidateInfo?.name || candidateInfo?.[0] || 'Unknown Candidate',
-					party: candidateInfo?.party || candidateInfo?.[2] || 'Independent',
-					constituency: result.constituency || result[2] || 'N/A',
-					voteCount: Number(result.voteCount || result[1] || 0)
-				};
-			});
+			// Get vote counts for each candidate
+			const candidateResults = [];
+			for (const candidateInfo of candidatesData) {
+				try {
+					console.log('Getting vote count for candidate ID:', candidateInfo.candidateId.toString());
+					const voteCount = await ge.getVoteCount(candidateInfo.candidateId);
+					console.log('Vote count for', candidateInfo.name, ':', voteCount.toString());
+					
+					candidateResults.push({
+						...candidateInfo,
+						voteCount: Number(voteCount)
+					});
+					total += Number(voteCount);
+				} catch (e) {
+					console.log('Error getting vote count for candidate', candidateInfo.candidateId, e.message);
+					candidateResults.push({
+						...candidateInfo,
+						voteCount: 0
+					});
+				}
+			}
 
 			// Sort by vote count (descending)
-			mergedResults.sort((a, b) => b.voteCount - a.voteCount);
+			candidateResults.sort((a, b) => b.voteCount - a.voteCount);
 
-			setResults(mergedResults);
+			setResults(candidateResults);
 			setCandidates(candidatesData);
 			setTotalVotes(total);
 			setStatus({ type: 'success', message: 'Results loaded successfully' });
@@ -111,12 +130,22 @@ function Results() {
 	return (
 		<div className="grid">
 			<div className="card">
-				<div style={{ marginBottom: '24px' }}>
-					<h1 style={{ margin: '0 0 8px 0', fontSize: '2rem' }}>Election Results</h1>
-					<p style={{ color: 'var(--text-muted)', margin: 0 }}>
-						Real-time election results with vote counts and percentages. 
-						Results are updated as votes are cast and verified on the blockchain.
-					</p>
+				<div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+					<div>
+						<h1 style={{ margin: '0 0 8px 0', fontSize: '2rem' }}>Election Results</h1>
+						<p style={{ color: 'var(--text-muted)', margin: 0 }}>
+							Real-time election results with vote counts and percentages. 
+							Results are updated as votes are cast and verified on the blockchain.
+						</p>
+					</div>
+					<button 
+						onClick={loadResults} 
+						className="btn primary"
+						disabled={loading}
+						style={{ marginLeft: '16px' }}
+					>
+						{loading ? '🔄 Loading...' : '🔄 Refresh Results'}
+					</button>
 				</div>
 
 				{status.message && (

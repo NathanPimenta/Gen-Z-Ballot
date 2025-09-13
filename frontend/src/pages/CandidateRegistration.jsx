@@ -65,9 +65,10 @@ function CandidateRegistration() {
 				'0x0000000000000000000000000000000000000000', // candidateAddress (will be set by contract)
 				formData.name.trim(),
 				formData.party.trim(),
-				ethers.parseEther(formData.deposit), // securityDepositInEthers
+				parseFloat(formData.deposit), // securityDepositInEthers (just the number)
 				parseInt(formData.age), // age
-				parseInt(formData.constituency) // constituencyId
+				parseInt(formData.constituency), // constituencyId
+				{ value: ethers.parseEther(formData.deposit) } // Send the actual ETH value
 			);
 			
 			setStatus({ type: 'loading', message: 'Waiting for confirmation...' });
