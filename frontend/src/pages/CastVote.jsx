@@ -17,6 +17,8 @@ function CastVote() {
 	const loadCandidates = async () => {
 		try {
 			setLoadingCandidates(true);
+			console.log('🗳️ Loading candidates for voting...');
+			
 			const candidateContract = await Candidate();
 			const voterContract = await Voter();
 			
@@ -28,25 +30,59 @@ function CastVote() {
 			const signer = await provider.getSigner();
 			const voterAddress = await signer.getAddress();
 			
+			console.log('👤 Voter address:', voterAddress);
+			
 			// Get voter details to find constituency
 			let voterConstituency = null;
 			try {
 				const voterDetails = await voterContract.getVoterByAddress(voterAddress);
 				voterConstituency = voterDetails.constituencyId.toString();
+				console.log('📍 Voter constituency:', voterConstituency);
+				console.log('✅ Voter details:', {
+					name: voterDetails.name,
+					age: voterDetails.age,
+					constituency: voterDetails.constituencyId.toString(),
+					isAllowedToVote: voterDetails.isAllowedToVote,
+					hasVoted: voterDetails.hasVoted
+				});
+				
+				// Check if voter has already voted
+				if (voterDetails.hasVoted) {
+					setStatus({ type: 'warning', message: 'You have already voted in this election' });
+					return;
+				}
+				
+				// Check if voter is verified
+				if (!voterDetails.isAllowedToVote) {
+					setStatus({ type: 'error', message: 'You must be verified by an election officer before you can vote' });
+					return;
+				}
 			} catch (e) {
-				console.log('Voter not found or not registered');
+				console.log('❌ Voter not found or not registered:', e.message);
 				setStatus({ type: 'error', message: 'You must be registered as a voter to cast a vote' });
 				return;
 			}
 			
 			// Get all candidates
 			const candidateAddresses = await candidateContract.getAllCandidates();
+			console.log('🏛️ All candidate addresses:', candidateAddresses);
+			
 			const candidateDetails = [];
 			
 			for (const address of candidateAddresses) {
 				try {
 					const candidateId = await candidateContract.getCandidateIdByAddress(address);
 					const details = await candidateContract.getCandidateDetails(candidateId);
+					
+					console.log('👤 Candidate details:', {
+						address,
+						name: details[0],
+						party: details[1],
+						age: details[2],
+						constituency: details[3].toString(),
+						canContest: details[4],
+						isVerified: details[5]
+					});
 					
 					// Only show candidates from the voter's constituency
 					if (details[3].toString() === voterConstituency) {
@@ -58,17 +94,24 @@ function CastVote() {
 							age: details[2].toString(),
 							isVerified: details[5]
 						});
+						console.log('✅ Added candidate to list:', details[0]);
+					} else {
+						console.log('❌ Candidate not from voter constituency:', details[0], 'constituency:', details[3].toString());
 					}
 				} catch (e) {
-					console.log('Error loading candidate details for', address, e.message);
+					console.log('❌ Error loading candidate details for', address, e.message);
 					continue;
 				}
 			}
 			
+			console.log('📋 Final candidates list:', candidateDetails);
 			setCandidates(candidateDetails);
 			
 			if (candidateDetails.length === 0) {
 				setStatus({ type: 'info', message: 'No candidates available in your constituency' });
+			} else {
+				console.log(`✅ Found ${candidateDetails.length} candidates for voting`);
+				setStatus({ type: 'success', message: `Found ${candidateDetails.length} candidates available for voting` });
 			}
 		} catch (e) {
 			console.error('Error loading candidates:', e);
@@ -219,7 +262,28 @@ function CastVote() {
 		<div className="grid">
 			<div className="card">
 				<div style={{ marginBottom: '24px' }}>
-					<h1 style={{ margin: '0 0 8px 0', fontSize: '2rem' }}>Cast Your Vote</h1>
+					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+						<h1 style={{ margin: 0, fontSize: '2rem' }}>Cast Your Vote</h1>
+						<button 
+							onClick={() => {
+								console.log('🔄 Refreshing candidates...');
+								loadCandidates();
+							}}
+							style={{
+								background: 'var(--bg-elev)',
+								border: '1px solid var(--border)',
+								borderRadius: '8px',
+								padding: '8px 16px',
+								cursor: 'pointer',
+								fontSize: '0.9rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px'
+							}}
+						>
+							🔄 Refresh
+						</button>
+					</div>
 					<p style={{ color: 'var(--text-muted)', margin: 0 }}>
 						Select your preferred candidate from the list below. You can only vote once, 
 						so choose carefully. Your vote is secure and anonymous.
@@ -264,7 +328,7 @@ function CastVote() {
 									<CandidateCard
 										key={idx}
 										candidate={candidate}
-										isSelected={selected === (candidate.candidateAddress || candidate.addr || candidate)}
+										isSelected={selected === candidate.address}
 										onSelect={setSelected}
 									/>
 								))}

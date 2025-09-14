@@ -2,12 +2,13 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-do
 import './App.css';
 import './index.css';
 import ConnectWallet from './components/ConnectWallet.jsx';
+import DebugPanel from './components/DebugPanel.jsx';
 import VoterRegistration from './pages/VoterRegistration.jsx';
 import CandidateRegistration from './pages/CandidateRegistration.jsx';
 import CastVote from './pages/CastVote.jsx';
 import Results from './pages/Results.jsx';
 import Dashboard from './pages/Dashboard.jsx';
-import OfficerPanel from './pages/OfficerPanel.jsx';
+import OfficerPanel from './pages/OfficerPanelNew.jsx';
 
 function NavigationLink({ to, children }) {
 	const location = useLocation();
@@ -55,6 +56,7 @@ function App() {
 						<Route path="/officer" element={<OfficerPanel />} />
 					</Routes>
 				</main>
+				<DebugPanel />
 			</div>
 		</BrowserRouter>
 	);

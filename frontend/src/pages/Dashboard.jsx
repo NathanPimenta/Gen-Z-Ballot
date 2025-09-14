@@ -24,6 +24,7 @@ function Dashboard() {
 	const loadDashboardData = async (showLoading = true) => {
 		try {
 			if (showLoading) setLoading(true);
+			console.log('📊 Loading dashboard data...');
 			
 			// Load basic stats
 			const [voterContract, candidateContract, electionContract] = await Promise.all([
@@ -31,6 +32,12 @@ function Dashboard() {
 				Candidate(),
 				GeneralElections()
 			]);
+			
+			console.log('📋 Contract instances loaded:', {
+				voter: !!voterContract,
+				candidate: !!candidateContract,
+				election: !!electionContract
+			});
 
 			// Get voter count
 			let voterCount = 0;
@@ -161,7 +168,10 @@ function Dashboard() {
 						Welcome to Gen-Z Ballot
 					</h1>
 					<button 
-						onClick={() => loadDashboardData(true)}
+						onClick={() => {
+							console.log('🔄 Manual refresh triggered');
+							loadDashboardData(true);
+						}}
 						style={{
 							background: 'var(--bg-elev)',
 							border: '1px solid var(--border)',

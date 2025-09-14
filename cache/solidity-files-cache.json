@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\david\\Gen-Z-Ballot\\voting_contracts\\Candidate.sol": {
-      "lastModificationDate": 1757759943328,
-      "contentHash": "11216f7ce803000d1d50a60ac00b0787",
+      "lastModificationDate": 1757780659149,
+      "contentHash": "4f23ec4737a2a1f5cb16e0818e6b5e8a",
       "sourceName": "voting_contracts/Candidate.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -76,7 +76,7 @@
       ]
     },
     "C:\\Users\\david\\Gen-Z-Ballot\\voting_contracts\\GeneralElections.sol": {
-      "lastModificationDate": 1757759949381,
+      "lastModificationDate": 1757771232630,
       "contentHash": "7e725a33aa616458f6b4d4cd5f259af0",
       "sourceName": "voting_contracts/GeneralElections.sol",
       "solcConfig": {

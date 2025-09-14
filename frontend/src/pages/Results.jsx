@@ -269,7 +269,7 @@ function Results() {
 										color: 'var(--text-dim)',
 										fontFamily: 'monospace'
 									}}>
-										{(result.candidateAddress || result[0] || '').slice(0, 6)}...{(result.candidateAddress || result[0] || '').slice(-4)}
+										{result.address.slice(0, 6)}...{result.address.slice(-4)}
 									</div>
 								</div>
 							</div>

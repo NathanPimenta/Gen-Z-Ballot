@@ -299,6 +299,33 @@ contract Candidate{
         return count;
     }
 
+    // Function to remove a candidate (only by election officer)
+    function removeCandidate(address candidateAddress) public {
+        require(e.isElecOfficer(msg.sender), "Only Election Officer can perform this action");
+        require(isCandidate[candidateAddress], "Candidate not found");
+        
+        // Get candidate details for constituency check
+        candidate memory c = candidates[candidateAddress];
+        uint officerConstituency = e.getOfficerByAddress(msg.sender).allotedConstituency;
+        
+        require(c.constituencyId == officerConstituency, "Cannot remove candidate from different constituency");
+        
+        // Remove candidate data
+        isCandidate[candidateAddress] = false;
+        verifiedCandidates[candidateAddress] = false;
+        hasWon[candidateAddress] = false;
+        
+        // Decrease total count
+        totalCandidates--;
+        
+        // Refund security deposit
+        payable(candidateAddress).transfer(c.securityDeposit);
+        totalDeposits -= c.securityDeposit;
+        
+        // Emit event
+        emit successfulContestant(candidateAddress, c.name, "Removed");
+    }
+
     constructor(address _electionOfficerAddr){
         regStart = block.timestamp;
         regEnd = regStart + 1 weeks;
