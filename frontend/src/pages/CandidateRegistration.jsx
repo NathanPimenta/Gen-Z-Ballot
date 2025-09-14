@@ -60,15 +60,64 @@ function CandidateRegistration() {
 			setLoading(true);
 			setStatus({ type: 'loading', message: 'Submitting candidacy...' });
 			
+			// Get current user's address
+			const provider = window.ethereum ? new ethers.BrowserProvider(window.ethereum) : null;
+			if (!provider) {
+				throw new Error('No provider found');
+			}
+			const signer = await provider.getSigner();
+			const candidateAddress = await signer.getAddress();
+			
 			const candidate = await Candidate();
+			
+			// Prepare transaction parameters
+			const name = formData.name.trim();
+			const party = formData.party.trim();
+			const securityDepositInEthers = parseFloat(formData.deposit);
+			const age = parseInt(formData.age);
+			const constituencyId = parseInt(formData.constituency);
+			const value = ethers.parseEther(formData.deposit);
+			
+			console.log('📝 Candidate registration parameters:', {
+				candidateAddress,
+				name,
+				party,
+				securityDepositInEthers,
+				age,
+				constituencyId,
+				value: ethers.formatEther(value) + ' ETH'
+			});
+			
+			// Estimate gas first
+			let gasEstimate;
+			try {
+				gasEstimate = await candidate.candidateRegistration.estimateGas(
+					candidateAddress,
+					name,
+					party,
+					securityDepositInEthers,
+					age,
+					constituencyId,
+					{ value: value }
+				);
+				console.log('⛽ Gas estimate:', gasEstimate.toString());
+			} catch (e) {
+				console.log('❌ Gas estimation failed:', e.message);
+				throw new Error(`Gas estimation failed: ${e.message}`);
+			}
+			
+			// Execute transaction with explicit gas limit
 			const tx = await candidate.candidateRegistration(
-				'0x0000000000000000000000000000000000000000', // candidateAddress (will be set by contract)
-				formData.name.trim(),
-				formData.party.trim(),
-				parseFloat(formData.deposit), // securityDepositInEthers (just the number)
-				parseInt(formData.age), // age
-				parseInt(formData.constituency), // constituencyId
-				{ value: ethers.parseEther(formData.deposit) } // Send the actual ETH value
+				candidateAddress,
+				name,
+				party,
+				securityDepositInEthers,
+				age,
+				constituencyId,
+				{ 
+					value: value,
+					gasLimit: gasEstimate * 120n / 100n // Add 20% buffer
+				}
 			);
 			
 			setStatus({ type: 'loading', message: 'Waiting for confirmation...' });
@@ -86,9 +135,31 @@ function CandidateRegistration() {
 			});
 		} catch (e) {
 			console.error('Registration error:', e);
+			
+			// Provide specific error messages
+			let errorMessage = 'Registration failed. Please try again.';
+			
+			if (e.message.includes('Following candidate is already registered')) {
+				errorMessage = 'This address is already registered as a candidate.';
+			} else if (e.message.includes('Incorrect deposit sent')) {
+				errorMessage = 'Incorrect security deposit amount. Please check the deposit field.';
+			} else if (e.message.includes('Gas estimation failed')) {
+				errorMessage = 'Transaction failed during gas estimation. Please try again or contact support.';
+			} else if (e.message.includes('insufficient funds')) {
+				errorMessage = 'Insufficient funds. Please ensure you have enough ETH for the security deposit and gas fees.';
+			} else if (e.message.includes('user rejected')) {
+				errorMessage = 'Transaction was rejected. Please try again.';
+			} else if (e.message.includes('network')) {
+				errorMessage = 'Network error. Please check your connection and try again.';
+			} else if (e.shortMessage) {
+				errorMessage = e.shortMessage;
+			} else if (e.message) {
+				errorMessage = e.message;
+			}
+			
 			setStatus({ 
 				type: 'error', 
-				message: e?.shortMessage || e?.message || 'Registration failed. Please try again.' 
+				message: errorMessage
 			});
 		} finally {
 			setLoading(false);
