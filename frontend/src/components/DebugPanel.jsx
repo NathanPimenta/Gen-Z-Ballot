@@ -80,19 +80,21 @@ function DebugPanel() {
     }, []);
 
     return (
-        <div style={{ 
-            position: 'fixed', 
-            top: '10px', 
-            right: '10px', 
-            background: 'rgba(0,0,0,0.8)', 
-            color: 'white', 
-            padding: '15px', 
-            borderRadius: '8px',
-            fontSize: '12px',
-            fontFamily: 'monospace',
-            zIndex: 9999,
-            minWidth: '250px'
-        }}>
+            <div style={{
+                position: 'fixed',
+                bottom: 0,      // flush with bottom
+                right: 0,       // flush with right
+                zIndex: 9999,   // make sure it stays on top
+                background: 'var(--surface)',
+                borderRadius: '16px 0 0 0', // rounded only top-left corner
+                padding: '1rem',
+                boxShadow: 'var(--shadow-floating)',
+                border: '1px solid var(--text-muted)',
+                opacity: 0.9,
+                transition: 'all 0.3s ease',
+                maxWidth: '400px',
+                fontSize: '0.85rem'
+            }}>
             <h4 style={{ margin: '0 0 10px 0', color: '#00ff00' }}>🔍 Debug Panel</h4>
             
             {loading && <div>⏳ Loading...</div>}

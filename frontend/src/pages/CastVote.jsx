@@ -187,60 +187,41 @@ function CastVote() {
 
 		return (
 			<div 
-				className="card" 
-				style={{
-					cursor: 'pointer',
-					border: isSelected ? '2px solid var(--brand)' : '1px solid var(--border)',
-					background: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-card)',
-					transform: isSelected ? 'translateY(-2px)' : 'none',
-					transition: 'all 0.2s ease'
-				}}
+				className={`candidate-card ${isSelected ? 'selected' : ''}`}
 				onClick={() => onSelect(address)}
 			>
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-					<div>
-						<h3 style={{ margin: '0 0 8px 0', fontSize: '1.2rem' }}>{name}</h3>
-						<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-							{party}
+				<div className="candidate-header">
+					<div className="candidate-info">
+						<div className="candidate-avatar">
+							{name.charAt(0).toUpperCase()}
 						</div>
-						<div style={{ marginTop: '4px' }}>
-							<span className="badge" style={{ marginRight: '8px' }}>
-								Constituency {constituency}
-							</span>
-							{candidate.isVerified && (
-								<span className="badge" style={{ background: 'var(--success)', color: 'white' }}>
-									✅ Verified
-								</span>
-							)}
+						<div>
+							<h3 className="candidate-name">{name}</h3>
+							<p className="candidate-party">{party}</p>
 						</div>
 					</div>
 					{isSelected && (
-						<div style={{ 
-							width: '24px', 
-							height: '24px', 
-							borderRadius: '50%', 
-							background: 'var(--brand)', 
-							color: 'white',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							fontSize: '0.8rem',
-							fontWeight: 'bold'
-						}}>
+						<div className="selection-indicator">
 							✓
 						</div>
 					)}
 				</div>
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-					<div className="badge">
-						Constituency {constituency}
+
+				<div className="candidate-details">
+					<div className="candidate-meta">
+						<span className="meta-item">
+							<span className="meta-icon">🗺️</span>
+							Constituency {constituency}
+						</span>
+						{candidate.isVerified && (
+							<span className="meta-item verified">
+								<span className="meta-icon">✅</span>
+								Verified
+							</span>
+						)}
 					</div>
-					<div style={{ 
-						fontSize: '0.8rem', 
-						color: 'var(--text-dim)',
-						fontFamily: 'monospace'
-					}}>
-						{address.slice(0, 6)}...{address.slice(-4)}
+					<div className="candidate-address">
+						{address.slice(0, 8)}...{address.slice(-6)}
 					</div>
 				</div>
 			</div>
@@ -249,199 +230,137 @@ function CastVote() {
 
 	if (loadingCandidates) {
 		return (
-			<div className="card" style={{ textAlign: 'center', padding: '48px' }}>
-				<div className="loading">
-					<div className="spinner"></div>
-					Loading candidates...
+			<div className="cast-vote-container">
+				<div className="card loading-card">
+					<div className="loading-content">
+						<div className="spinner"></div>
+						<h2>Loading candidates...</h2>
+						<p>Please wait while we fetch the candidate list</p>
+					</div>
 				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className="grid">
-			<div className="card">
-				<div style={{ marginBottom: '24px' }}>
-					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-						<h1 style={{ margin: 0, fontSize: '2rem' }}>Cast Your Vote</h1>
-						<button 
+		<div className="cast-vote-container">
+			<div className="page-header">
+				<div className="card glass">
+						
+							<h1>🗳️ Cast Your Vote</h1>
+							<p style={{ marginTop: '1rem' }}>Select your preferred candidate from the list below. You can only vote once, so choose carefully. Your vote is secure and anonymous.</p>
+						
+						<button style={{ marginTop: '2rem' }}
 							onClick={() => {
 								console.log('🔄 Refreshing candidates...');
 								loadCandidates();
 							}}
-							style={{
-								background: 'var(--bg-elev)',
-								border: '1px solid var(--border)',
-								borderRadius: '8px',
-								padding: '8px 16px',
-								cursor: 'pointer',
-								fontSize: '0.9rem',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px'
-							}}
+							className="btn-secondary"
 						>
 							🔄 Refresh
 						</button>
-					</div>
-					<p style={{ color: 'var(--text-muted)', margin: 0 }}>
-						Select your preferred candidate from the list below. You can only vote once, 
-						so choose carefully. Your vote is secure and anonymous.
-					</p>
 				</div>
-
-				{candidates.length === 0 ? (
-					<div style={{ 
-						textAlign: 'center', 
-						padding: '48px 24px',
-						color: 'var(--text-muted)'
-					}}>
-						<div style={{ fontSize: '3rem', marginBottom: '16px' }}>🗳️</div>
-						<h3 style={{ margin: '0 0 8px 0' }}>No Candidates Available</h3>
-						<p style={{ margin: 0 }}>
-							There are no registered candidates yet. Check back later or 
-							<button 
-								onClick={() => window.location.href = '/candidate'}
-								style={{ 
-									background: 'none', 
-									border: 'none', 
-									color: 'var(--brand)', 
-									textDecoration: 'underline',
-									cursor: 'pointer',
-									fontSize: 'inherit'
-								}}
-							>
-								register as a candidate
-							</button>.
-						</p>
-					</div>
-				) : (
-					<>
-						<div style={{ marginBottom: '24px' }}>
-							<h3 style={{ margin: '0 0 16px 0' }}>Available Candidates</h3>
-							<div style={{ 
-								display: 'grid', 
-								gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-								gap: '16px' 
-							}}>
-								{candidates.map((candidate, idx) => (
-									<CandidateCard
-										key={idx}
-										candidate={candidate}
-										isSelected={selected === candidate.address}
-										onSelect={setSelected}
-									/>
-								))}
-							</div>
-						</div>
-
-						{status.message && (
-							<div className={`status-message ${status.type}`}>
-								{status.type === 'loading' && <div className="spinner"></div>}
-								{status.message}
-							</div>
-						)}
-
-						<div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '8px' }}>
-							<button 
-								onClick={vote} 
-								disabled={loading || !selected}
-								className="primary"
-								style={{ minWidth: '140px' }}
-							>
-								{loading ? (
-									<div className="loading">
-										<div className="spinner"></div>
-										Casting Vote...
-									</div>
-								) : (
-									'Cast Vote'
-								)}
-							</button>
-							
-							{selected && !loading && (
-								<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-								Selected: {candidates.find(c => c.address === selected)?.name || 'Unknown'}
-								</div>
-							)}
-						</div>
-					</>
-				)}
 			</div>
 
-			{/* Voting Information */}
-			<div className="card">
-				<h3 style={{ margin: '0 0 16px 0' }}>Voting Information</h3>
-				<div style={{ display: 'grid', gap: '12px' }}>
-					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-						<div style={{ 
-							width: '20px', 
-							height: '20px', 
-							borderRadius: '50%', 
-							background: 'var(--brand)', 
-							color: 'white',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							fontSize: '0.7rem',
-							fontWeight: 'bold',
-							marginTop: '2px',
-							flexShrink: 0
-						}}>
-							🔒
-						</div>
-						<div>
-							<div style={{ fontWeight: '600' }}>Secure & Anonymous</div>
-							<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-								Your vote is encrypted and cannot be traced back to you
+			<div className="voting-layout">
+				<div className="main-voting-section">
+					{candidates.length === 0 ? (
+						<div className="card empty-state">
+							<div className="empty-content">
+								<div className="empty-icon">🗳️</div>
+								<h3>No Candidates Available</h3>
+								<p>There are no registered candidates in your constituency yet. Check back later or register as a candidate yourself.</p>
+								<button 
+									onClick={() => window.location.href = '/candidate'}
+									className="btn-primary"
+								>
+									Register as Candidate
+								</button>
 							</div>
 						</div>
-					</div>
-					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-						<div style={{ 
-							width: '20px', 
-							height: '20px', 
-							borderRadius: '50%', 
-							background: 'var(--brand)', 
-							color: 'white',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							fontSize: '0.7rem',
-							fontWeight: 'bold',
-							marginTop: '2px',
-							flexShrink: 0
-						}}>
-							⚡
-						</div>
-						<div>
-							<div style={{ fontWeight: '600' }}>One Vote Per Person</div>
-							<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-								Each registered voter can only cast one vote
+					) : (
+						<>
+							<div className="candidates-section">
+								<div className="section-header">
+									<h2>Available Candidates ({candidates.length})</h2>
+									<p>Choose your preferred candidate by clicking on their card</p>
+								</div>
+								<div className="candidates-grid">
+									{candidates.map((candidate, idx) => (
+										<CandidateCard
+											key={idx}
+											candidate={candidate}
+											isSelected={selected === candidate.address}
+											onSelect={setSelected}
+										/>
+									))}
+								</div>
 							</div>
-						</div>
-					</div>
-					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-						<div style={{ 
-							width: '20px', 
-							height: '20px', 
-							borderRadius: '50%', 
-							background: 'var(--brand)', 
-							color: 'white',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							fontSize: '0.7rem',
-							fontWeight: 'bold',
-							marginTop: '2px',
-							flexShrink: 0
-						}}>
-							📊
-						</div>
-						<div>
-							<div style={{ fontWeight: '600' }}>Transparent Results</div>
-							<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-								All votes are recorded on the blockchain and publicly verifiable
+
+							{status.message && (
+								<div className={`status-message ${status.type}`}>
+									{status.type === 'loading' && <div className="spinner"></div>}
+									{status.message}
+								</div>
+							)}
+
+							<div className="voting-actions">
+								<div className="action-section">
+									<button 
+										onClick={vote} 
+										disabled={loading || !selected}
+										className="btn-primary vote-button"
+									>
+										{loading ? (
+											<>
+												<div className="spinner"></div>
+												Casting Vote...
+											</>
+										) : (
+											<>
+												🗳️ Cast Vote
+											</>
+										)}
+									</button>
+									
+									{selected && !loading && (
+										<div className="selected-info">
+											<span className="selected-label">Selected:</span>
+											<span className="selected-name">
+												{candidates.find(c => c.address === selected)?.name || 'Unknown'}
+											</span>
+										</div>
+									)}
+								</div>
+							</div>
+						</>
+					)}
+				</div>
+
+				<div className="sidebar-info">
+					<div className="card info-card">
+						<h3>🔐 Voting Information</h3>
+						<div className="info-list">
+							<div className="info-item">
+								<span className="info-icon">🔒</span>
+								<div>
+									<strong>Secure & Anonymous</strong>
+									<p>Your vote is encrypted and cannot be traced back to you</p>
+								</div>
+							</div>
+							<div className="info-item">
+								<span className="info-icon">⚡</span>
+								<div>
+									<strong>One Vote Per Person</strong>
+									<p>Each registered voter can only cast one vote</p>
+								</div>
+							</div>
+							<div className="info-item">
+								<span className="info-icon">📊</span>
+								<div>
+									<strong>Transparent Results</strong>
+									<p>All votes are recorded on the blockchain and publicly verifiable</p>
+								</div>
 							</div>
 						</div>
 					</div>

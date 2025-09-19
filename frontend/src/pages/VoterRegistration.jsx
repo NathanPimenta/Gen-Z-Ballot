@@ -103,80 +103,95 @@ function VoterRegistration() {
 		}
 	};
 
-	const FormField = ({ label, field, type = 'text', placeholder, helpText }) => (
+	const FormField = ({ label, field, type = 'text', placeholder, helpText, icon }) => (
 		<div className="form-group">
-			<label className="label">{label}</label>
-			<input 
-				type={type}
-				placeholder={placeholder}
-				value={formData[field]}
-				onChange={(e) => handleInputChange(field, e.target.value)}
-				disabled={loading}
-				style={{
-					borderColor: errors[field] ? 'var(--error)' : undefined
-				}}
-			/>
+			<label className="label">
+				{icon && <span>{icon}</span>}
+				{label}
+			</label>
+			<div className="input-group">
+				<input 
+					type={type}
+					placeholder={placeholder}
+					value={formData[field]}
+					onChange={(e) => handleInputChange(field, e.target.value)}
+					disabled={loading}
+					style={{
+						borderColor: errors[field] ? 'var(--error)' : undefined,
+						boxShadow: errors[field] ? 'var(--shadow-inset), 0 0 0 2px var(--error)' : undefined
+					}}
+				/>
+			</div>
 			{helpText && (
-				<div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-					{helpText}
+				<div className="form-help-text">
+					💡 {helpText}
 				</div>
 			)}
 			{errors[field] && (
-				<div style={{ fontSize: '0.8rem', color: 'var(--error)', marginTop: '4px' }}>
-					{errors[field]}
+				<div className="form-error-text">
+					⚠️ {errors[field]}
 				</div>
 			)}
 		</div>
 	);
 
 	return (
-		<div className="grid">
+		<div className="form-container">
 			<div className="card">
-				<div style={{ marginBottom: '24px' }}>
-					<h1 style={{ margin: '0 0 8px 0', fontSize: '2rem' }}>Voter Registration</h1>
-					<p style={{ color: 'var(--text-muted)', margin: 0 }}>
-						Register as a voter to participate in the decentralized election system. 
-						All fields are required and will be verified by election officers.
-					</p>
+				<div className="card-header">
+					<div className="card-icon">👤</div>
+					<div>
+						<h1 className="card-title">Voter Registration</h1>
+						<p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.9rem' }}>
+							Register to participate in decentralized elections
+						</p>
+					</div>
 				</div>
 
-				<div className="form">
-					<FormField
-						label="Full Name"
-						field="name"
-						placeholder="Enter your full legal name"
-						helpText="Use your official name as it appears on government documents"
-					/>
-
-					<FormField
-						label="Age"
-						field="age"
-						type="number"
-						placeholder="Enter your age"
-						helpText="Must be 18 years or older to vote"
-					/>
+				<div className="form form-wide">
+					<div className="form-row">
+						<FormField
+							label="Full Name"
+							field="name"
+							placeholder="Enter your full legal name"
+							helpText="Use your official name as it appears on government documents"
+							icon="📝"
+						/>
+						<FormField
+							label="Age"
+							field="age"
+							type="number"
+							placeholder="Enter your age"
+							helpText="Must be 18 years or older to vote"
+							icon="🎂"
+						/>
+					</div>
 
 					<FormField
 						label="Aadhar Number"
 						field="aadhar"
 						placeholder="Enter your Aadhar number or hex format (0x...)"
-						helpText="You can enter your Aadhar number directly or in hex format (0x313233343536373839303132)"
+						helpText="You can enter your Aadhar number directly or in hex format"
+						icon="🆔"
 					/>
 
-					<FormField
-						label="Voter ID"
-						field="voterId"
-						placeholder="Enter your voter ID number"
-						helpText="Your official voter identification number"
-					/>
-
-					<FormField
-						label="Constituency ID"
-						field="constituency"
-						type="number"
-						placeholder="Enter constituency number"
-						helpText="The constituency number where you are registered to vote"
-					/>
+					<div className="form-row">
+						<FormField
+							label="Voter ID"
+							field="voterId"
+							placeholder="Enter your voter ID number"
+							helpText="Your official voter identification number"
+							icon="🗳️"
+						/>
+						<FormField
+							label="Constituency ID"
+							field="constituency"
+							type="number"
+							placeholder="Enter constituency number"
+							helpText="The constituency number where you are registered to vote"
+							icon="🏛️"
+						/>
+					</div>
 
 					{status.message && (
 						<div className={`status-message ${status.type}`}>
@@ -185,12 +200,12 @@ function VoterRegistration() {
 						</div>
 					)}
 
-					<div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '8px' }}>
+					<div className="form-actions">
 						<button 
 							onClick={register} 
 							disabled={loading}
 							className="primary"
-							style={{ minWidth: '140px' }}
+							style={{ minWidth: '180px' }}
 						>
 							{loading ? (
 								<div className="loading">
@@ -198,87 +213,63 @@ function VoterRegistration() {
 									Registering...
 								</div>
 							) : (
-								'Register as Voter'
+								<div className="button-content">
+									<span>✅</span>
+									Register as Voter
+								</div>
 							)}
 						</button>
-						
-						{loading && (
-							<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-								This may take a few moments...
+						<button 
+							type="button"
+							onClick={() => {
+								setFormData({
+									name: '',
+									age: '',
+									aadhar: '',
+									voterId: '',
+									constituency: ''
+								});
+								setErrors({});
+								setStatus({ type: '', message: '' });
+							}}
+							className="ghost"
+							disabled={loading}
+						>
+							<div className="button-content">
+								<span>🔄</span>
+								Reset Form
 							</div>
-						)}
+						</button>
 					</div>
 				</div>
 			</div>
 
 			{/* Information Card */}
 			<div className="card">
-				<h3 style={{ margin: '0 0 16px 0' }}>Registration Process</h3>
-				<div style={{ display: 'grid', gap: '12px' }}>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<div style={{ 
-							width: '24px', 
-							height: '24px', 
-							borderRadius: '50%', 
-							background: 'var(--brand)', 
-							color: 'white',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							fontSize: '0.8rem',
-							fontWeight: 'bold'
-						}}>
-							1
-						</div>
+				<div className="card-header">
+					<div className="card-icon">ℹ️</div>
+					<h3 className="card-title">Registration Information</h3>
+				</div>
+				<div className="info-list">
+					<div className="info-item">
+						<span className="info-icon">📋</span>
 						<div>
-							<div style={{ fontWeight: '600' }}>Submit Registration</div>
-							<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-								Fill out the form with your details
-							</div>
+							<div className="info-title">Required Documents</div>
+							<div className="info-description">Valid Aadhar Card and Voter ID</div>
 						</div>
 					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<div style={{ 
-							width: '24px', 
-							height: '24px', 
-							borderRadius: '50%', 
-							background: 'var(--text-muted)', 
-							color: 'white',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							fontSize: '0.8rem',
-							fontWeight: 'bold'
-						}}>
-							2
-						</div>
+					<div className="info-item">
+						<span className="info-icon">⏱️</span>
 						<div>
-							<div style={{ fontWeight: '600' }}>Officer Verification</div>
-							<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-								Election officers will verify your information
-							</div>
+							<div className="info-title">Processing Time</div>
+							<div className="info-description">Registration requires officer verification</div>
 						</div>
 					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<div style={{ 
-							width: '24px', 
-							height: '24px', 
-							borderRadius: '50%', 
-							background: 'var(--text-muted)', 
-							color: 'white',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							fontSize: '0.8rem',
-							fontWeight: 'bold'
-						}}>
-							3
-						</div>
+					<div className="info-item">
+						<span className="info-icon">🔒</span>
 						<div>
-							<div style={{ fontWeight: '600' }}>Approval</div>
-							<div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-								Once approved, you can participate in voting
-							</div>
+							<div className="info-title">Security</div>
+							<div className="info-description">All data is stored on blockchain</div>
 						</div>
 					</div>
 				</div>

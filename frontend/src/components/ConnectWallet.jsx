@@ -115,63 +115,40 @@ function ConnectWallet({ onConnect }) {
 	const isCorrectNetwork = chainId === '0x539';
 
 	return (
-		<div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+		<div className="wallet-container">
 			{chainId && (
 				<span className={`badge ${isCorrectNetwork ? 'success' : 'warning'}`}>
-					Chain: {parseInt(chainId, 16)}
+					⛓️ Chain: {parseInt(chainId, 16)}
 				</span>
 			)}
 			
 			{error && (
-				<div style={{ 
-					fontSize: '0.8rem', 
-					color: 'var(--error)', 
-					background: 'rgba(239, 68, 68, 0.1)',
-					padding: '8px 12px',
-					borderRadius: '8px',
-					border: '1px solid var(--error)'
-				}}>
-					{error}
+				<div className="status-message error">
+					⚠️ {error}
 				</div>
 			)}
 
 			{!isCorrectNetwork && chainId && (
-				<button onClick={switchNetwork} className="warning" style={{ fontSize: '0.8rem' }}>
-					Switch to Hardhat
+				<button onClick={switchNetwork} className="warning">
+					🔄 Switch to Hardhat
 				</button>
 			)}
 
 			{account ? (
-				<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-					<button 
-						onClick={disconnect}
-						style={{ 
-							background: 'var(--bg-elev)', 
-							border: '1px solid var(--border)',
-							fontSize: '0.8rem',
-							padding: '6px 12px'
-						}}
-					>
-						Disconnect
+				<div className="wallet-connected">
+					<button onClick={disconnect} className="ghost">
+						🔌 Disconnect
 					</button>
-					<button 
-						style={{
-							background: 'var(--gradient-brand)',
-							color: 'white',
-							border: 'none',
-							fontSize: '0.9rem',
-							padding: '8px 16px'
-						}}
-					>
+					<div className="wallet-address">
+						<span className="wallet-icon">👤</span>
 						{account.slice(0, 6)}...{account.slice(-4)}
-					</button>
+					</div>
 				</div>
 			) : (
 				<button 
 					onClick={connect} 
 					disabled={connecting}
 					className="primary"
-					style={{ minWidth: '140px' }}
 				>
 					{connecting ? (
 						<div className="loading">
@@ -179,7 +156,10 @@ function ConnectWallet({ onConnect }) {
 							Connecting...
 						</div>
 					) : (
-						'Connect Wallet'
+						<>
+							<span style={{ marginRight: '0.5rem' }}>🔗</span>
+							Connect Wallet
+						</>
 					)}
 				</button>
 			)}
