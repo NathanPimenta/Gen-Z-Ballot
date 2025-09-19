@@ -253,11 +253,11 @@ const OfficerPanel = () => {
 
   if (!account) {
     return (
-      <div className="container">
-        <div className="card">
+      <div className="connect-wallet-container">
+        <div className="connect-wallet-card card">
           <h2>🔐 Election Officer Panel</h2>
           <p>Please connect your wallet to access the officer panel.</p>
-          <button onClick={connectWallet} className="btn primary">
+          <button onClick={connectWallet} className="btn-primary">
             Connect Wallet
           </button>
         </div>
@@ -266,18 +266,12 @@ const OfficerPanel = () => {
   }
 
   return (
-    <div className="container">
+    <div className="officer-panel-container">
       <div className="header">
         <h1>🏛️ Election Officer Panel</h1>
         <p>Manage voter and candidate verification</p>
         {officerInfo && (
-          <div className="officer-info" style={{ 
-            background: '#f0f8ff', 
-            padding: '1rem', 
-            borderRadius: '8px', 
-            margin: '1rem 0',
-            border: '1px solid #007bff'
-          }}>
+          <div className="officer-info">
             <h4>👮‍♂️ Officer Information</h4>
             <p><strong>Name:</strong> {officerInfo.name}</p>
             <p><strong>Constituency:</strong> {officerInfo.constituency}</p>
@@ -286,13 +280,7 @@ const OfficerPanel = () => {
           </div>
         )}
         {!officerInfo && account && (
-          <div className="officer-warning" style={{ 
-            background: '#fff3cd', 
-            padding: '1rem', 
-            borderRadius: '8px', 
-            margin: '1rem 0',
-            border: '1px solid #ffc107'
-          }}>
+          <div className="officer-warning">
             <h4>⚠️ Authorization Required</h4>
             <p>Your account is not registered as an election officer. Please contact the election commissioner to be assigned as an officer.</p>
           </div>
@@ -304,17 +292,17 @@ const OfficerPanel = () => {
           {message}
         </div>
       )}
-
-      <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      
+      <div className="grid">
         {/* Voters Section */}
-        <div className="card">
+        <div className="verification-section card">
           <h3>👥 Voter Verification</h3>
           {loading ? (
             <div className="loading">Loading voters...</div>
           ) : (
             <div className="voter-list">
               {voters.length === 0 ? (
-                <p>No voters registered yet.</p>
+                <p className="empty-message">No voters registered yet.</p>
               ) : (
                 voters.map((voter, index) => (
                   <div key={index} className="voter-item">
@@ -322,13 +310,13 @@ const OfficerPanel = () => {
                       <strong>{voter.name}</strong>
                       <p>Age: {voter.age}</p>
                       <p>Constituency: {voter.constituency}</p>
-                      <p>Has Voted: {voter.hasVoted ? '✅ Yes' : '❌ No'}</p>
-                      <p>Status: {voter.isVerified ? '✅ Verified' : '❌ Pending'}</p>
+                      <p>Has Voted: {voter.hasVoted ? "✅ Yes" : "❌ No"}</p>
+                      <p>Status: <span className={voter.isVerified ? "status-verified" : "status-pending"}>{voter.isVerified ? "✅ Verified" : "❌ Pending"}</span></p>
                     </div>
                     {!voter.isVerified && (
                       <button
                         onClick={() => verifyVoter(voter.address)}
-                        className="btn success"
+                        className="verify-button"
                         disabled={loading}
                       >
                         Verify
@@ -341,15 +329,16 @@ const OfficerPanel = () => {
           )}
         </div>
 
+
         {/* Candidates Section */}
-        <div className="card">
+        <div className="verification-section card">
           <h3>🏛️ Candidate Verification</h3>
           {loading ? (
             <div className="loading">Loading candidates...</div>
           ) : (
             <div className="candidate-list">
               {candidates.length === 0 ? (
-                <p>No candidates registered yet.</p>
+                <p className="empty-message">No candidates registered yet.</p>
               ) : (
                 candidates.map((candidate, index) => (
                   <div key={index} className="candidate-item">
@@ -358,12 +347,12 @@ const OfficerPanel = () => {
                       <p>Party: {candidate.party}</p>
                       <p>Constituency: {candidate.constituency}</p>
                       <p>Age: {candidate.age}</p>
-                      <p>Status: {candidate.isVerified ? '✅ Verified' : '❌ Pending'}</p>
+                      <p>Status: <span className={candidate.isVerified ? "status-verified" : "status-pending"}>{candidate.isVerified ? '✅ Verified' : '❌ Pending'}</span></p>
                     </div>
                     {!candidate.isVerified && (
                       <button
                         onClick={() => verifyCandidate(candidate.address)}
-                        className="btn success"
+                        className="verify-button"
                         disabled={loading}
                       >
                         Verify
@@ -377,13 +366,13 @@ const OfficerPanel = () => {
         </div>
       </div>
 
-      <div className="card">
+      <div className="quick-actions card">
         <h3>📊 Quick Actions</h3>
         <div className="form-row">
-          <button onClick={loadData} className="btn primary" disabled={loading}>
+          <button onClick={loadData} className="btn-primary" disabled={loading}>
             🔄 Refresh Data
           </button>
-          <button onClick={() => setMessage('')} className="btn secondary">
+          <button onClick={() => setMessage('')} className="btn-secondary">
             Clear Messages
           </button>
         </div>
