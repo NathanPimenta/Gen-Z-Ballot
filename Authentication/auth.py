@@ -10,7 +10,7 @@ SUCCESS_URL = "https://idea-hackathon-dfui.vercel.app/"  # Redirect link
 
 # Load face detector and landmark predictor
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("/Users/rajs/Downloads/shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor("D:/Nathan/PROJECTS/Gen-Z-Ballot1/shape_predictor_68_face_landmarks.dat")
 
 def eye_aspect_ratio(eye):
     """Calculate the eye aspect ratio (EAR) for blink detection."""
