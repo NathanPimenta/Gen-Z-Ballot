@@ -304,7 +304,7 @@ const OfficerPanel = () => {
           {message}
         </div>
       )}
-
+      
       <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
         {/* Voters Section */}
         <div className="card">
@@ -318,12 +318,19 @@ const OfficerPanel = () => {
               ) : (
                 voters.map((voter, index) => (
                   <div key={index} className="voter-item">
-                    <div className="voter-info">
-                      <strong>{voter.name}</strong>
+                    <div
+                      className="voter-info"
+                      style={{
+                        wordBreak: "break-word",
+                        overflowWrap: "break-word",
+                        whiteSpace: "normal",
+                      }}
+                    >
+                      <strong>{'voter.name'}</strong>
                       <p>Age: {voter.age}</p>
                       <p>Constituency: {voter.constituency}</p>
-                      <p>Has Voted: {voter.hasVoted ? '✅ Yes' : '❌ No'}</p>
-                      <p>Status: {voter.isVerified ? '✅ Verified' : '❌ Pending'}</p>
+                      <p>Has Voted: {voter.hasVoted ? "✅ Yes" : "❌ No"}</p>
+                      <p>Status: {voter.isVerified ? "✅ Verified" : "❌ Pending"}</p>
                     </div>
                     {!voter.isVerified && (
                       <button
@@ -340,6 +347,7 @@ const OfficerPanel = () => {
             </div>
           )}
         </div>
+
 
         {/* Candidates Section */}
         <div className="card">
